@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0"
+    xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+    xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZKANBAN_SRV" xml:lang="pt" sap:schema-version="1"
+            xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="Processo" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Idrecurso"/>
+                    <PropertyRef Name="Centro"/>
+                </Key>
+                <Property Name="Idrecurso" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="ID objeto" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Centro" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Centro" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Descrecurso" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="Denominação" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Area" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Area" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Descprocesso" Type="Edm.String" Nullable="false" MaxLength="60" sap:unicode="false" sap:label="Processo" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <NavigationProperty Name="OrdemSet" Relationship="ZKANBAN_SRV.ProcessoToOrdem" FromRole="FromRole_ProcessoToOrdem" ToRole="ToRole_ProcessoToOrdem"/>
+            </EntityType>
+            <EntityType Name="Ordem" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Idrecurso"/>
+                    <PropertyRef Name="Idordem"/>
+                    <PropertyRef Name="Idoperacao"/>
+                </Key>
+                <Property Name="Idrecurso" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="ID objeto" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Idordem" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="Ordem" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Idoperacao" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Operação" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Centro" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Centro" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Descrecurso" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="TxtDesc.Oper." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Arbpl" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Centro trabalho" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Ftrmi" Type="Edm.DateTime" Precision="7" sap:unicode="false" sap:label="Liberação real" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Plnbez" Type="Edm.String" Nullable="false" MaxLength="18" sap:unicode="false" sap:label="Material" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Maktx" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="Denominação" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gamng" Type="Edm.Decimal" Nullable="false" Precision="13" Scale="3" sap:unicode="false" sap:label="Qtd.teórica" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gmein" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="UM básica" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false" sap:semantics="unit-of-measure"/>
+                <Property Name="Rsnum" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Reserva" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Stlnr" Type="Edm.String" Nullable="false" MaxLength="8" sap:unicode="false" sap:label="Lista técnica" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Stlal" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Alternativa" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Auart" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Tipo de ordem" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Charg" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Lote" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Verid" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Versão prod." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Idat2" Type="Edm.DateTime" Precision="7" sap:unicode="false" sap:label="Dta.encer.técn." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Idat3" Type="Edm.DateTime" Precision="7" sap:unicode="false" sap:label="Encerramento" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <Association Name="ProcessoToOrdem" sap:content-version="1">
+                <End Type="ZKANBAN_SRV.Processo" Multiplicity="1" Role="FromRole_ProcessoToOrdem"/>
+                <End Type="ZKANBAN_SRV.Ordem" Multiplicity="*" Role="ToRole_ProcessoToOrdem"/>
+                <ReferentialConstraint>
+                    <Principal Role="FromRole_ProcessoToOrdem">
+                        <PropertyRef Name="Idrecurso"/>
+                        <PropertyRef Name="Centro"/>
+                    </Principal>
+                    <Dependent Role="ToRole_ProcessoToOrdem">
+                        <PropertyRef Name="Idrecurso"/>
+                        <PropertyRef Name="Centro"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <EntityContainer Name="ZKANBAN_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="ProcessoSet" EntityType="ZKANBAN_SRV.Processo" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="OrdemSet" EntityType="ZKANBAN_SRV.Ordem" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <AssociationSet Name="ProcessoToOrdemSet" Association="ZKANBAN_SRV.ProcessoToOrdem" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ProcessoSet" Role="FromRole_ProcessoToOrdem"/>
+                    <End EntitySet="OrdemSet" Role="ToRole_ProcessoToOrdem"/>
+                </AssociationSet>
+            </EntityContainer>
+            <atom:link rel="self" href="http://SQAP20.uniaoquimica.com.br:8000/sap/opu/odata/sap/ZKANBAN_SRV/$metadata"
+                xmlns:atom="http://www.w3.org/2005/Atom"/>
+                <atom:link rel="latest-version" href="http://SQAP20.uniaoquimica.com.br:8000/sap/opu/odata/sap/ZKANBAN_SRV/$metadata"
+                    xmlns:atom="http://www.w3.org/2005/Atom"/>
+                </Schema>
+            </edmx:DataServices>
+        </edmx:Edmx>
