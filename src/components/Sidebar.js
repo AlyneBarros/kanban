@@ -36,7 +36,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
         className={
           isSideBarOpen
             ? `min-w-[261px] bg-white dark:bg-[#2b2c37]  fixed top-[72px] h-screen  items-center left-0 z-20`
-            : ` bg-[#635FC7] dark:bg-[#2b2c37] dark:hover:bg-[#635FC7] top-auto bottom-10 justify-center items-center hover:opacity-80 cursor-pointer  p-0 transition duration-300 transform fixed flex w-[56px] h-[48px] rounded-r-full`
+            : ` bg-[#635FC7] dark:bg-[#2b2c37] dark:hover:bg-[#D22B2B top-auto bottom-10 justify-center items-center hover:opacity-80 cursor-pointer  p-0 transition duration-300 transform fixed flex w-[56px] h-[48px] rounded-r-full`
         }
       >
         <div>
@@ -96,9 +96,9 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen }) {
           {isSideBarOpen ? (
             <div
               onClick={toggleSidebar}
-              className="flex items-center mt-2 absolute bottom-16 text-lg font-bold rounded-r-full hover:text-[#635FC7] cursor-pointer mr-6 mb-8 px-8 py-4 hover:bg-[#635fc71a] dark:hover:bg-white space-x-2 justify-center my-4 text-gray-500"
+              className="flex items-center mt-2 absolute bottom-16 text-lg font-bold rounded-r-full hover:text-[#D22B2B] cursor-pointer mr-6 mb-8 px-8 py-4 hover:bg-[#635fc71a] dark:hover:bg-white space-x-2 justify-center my-4 text-gray-500"
             >
-              <img className="min-w-[20px]" src={hideSidebarIcon} alt="hide sidebar icon" />
+              <img className="min-w-[20px] bg- [#D22B2B]" src={hideSidebarIcon} alt="hide sidebar icon" />
               <p>Hide Sidebar</p>
             </div>
           ) : (

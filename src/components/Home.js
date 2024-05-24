@@ -2,30 +2,22 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Column from "./Column";
 import Sidebar from "./Sidebar";
+import Header from "./Header";
+
 
 const serviceUrl = 'https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV';
 const username = 'usr_webapp';
 const password = 'Uqfn@2020@#';
 
 function Home() {
-  const [windowSize, setWindowSize] = useState([window.innerWidth, window.innerHeight]);
   const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
   const [orders, setOrders] = useState([]);
   const [kanbanHeader, setKanbanHeader] = useState('');
   const [boardSlice, setBoardSlice] = useState('');
-
-  useEffect(() => {
-    const handleWindowResize = () => {
-      setWindowSize([window.innerWidth, window.innerHeight]);
-    };
-
-    window.addEventListener("resize", handleWindowResize);
-
-    return () => {
-      window.removeEventListener("resize", handleWindowResize);
-    };
-  }, []);
+  const [uniqueOrderCount, setUniqueOrderCount] = useState(0);
+  const [startedOrderCount, setStartedOrderCount] = useState(0);
+  const [waitingOrderCount, setWaitingOrderCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,10 +33,18 @@ function Home() {
         const ordersOfSg00 = responseOrders.data.d.results;
         setOrders(ordersOfSg00);
 
-        // Set Kanban Header and Board Slice
         if (ordersOfSg00.length > 0) {
           setKanbanHeader(ordersOfSg00[0].Centro);
           setBoardSlice(ordersOfSg00[0].Area);
+
+          const uniqueOrders = new Set(ordersOfSg00.map(order => order.OrderNumber));
+          setUniqueOrderCount(uniqueOrders.size);
+
+          // Calcular ordens iniciadas e em espera
+          const startedOrders = ordersOfSg00.filter(order => order.Dtcheckin && order.Hrcheckin);
+          const waitingOrders = ordersOfSg00.filter(order => !order.Dtcheckin || !order.Hrcheckin);
+          setStartedOrderCount(startedOrders.length);
+          setWaitingOrderCount(waitingOrders.length);
         }
       } catch (error) {
         console.error("Erro ao buscar dados da API OData:", error);
@@ -55,23 +55,24 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c]">
-      {/* Sidebar */}
+    <div className="flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+      <Header 
+        uniqueOrderCount={uniqueOrderCount} 
+        startedOrderCount={startedOrderCount} 
+        waitingOrderCount={waitingOrderCount} 
+      />
+      
       <Sidebar isSideBarOpen={isSideBarOpen} setIsSideBarOpen={setIsSideBarOpen} />
-
-      {/* Main Content */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSideBarOpen ? 'ml-[261px]' : 'ml-0'
-        }`}
-      >
+      
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSideBarOpen ? 'ml-[261px]' : 'ml-0'}`}>
         <header className="flex items-center justify-between p-4 bg-white dark:bg-[#2b2c37] shadow-md">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{kanbanHeader}</h1>
         </header>
-
+        
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
+    
           {orders.length > 0 ? (
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 min-w-max">
               {Array.from(new Set(orders.map(order => order.Processo))).map((processo, index) => (
                 <Column 
                   key={index} 
@@ -82,6 +83,7 @@ function Home() {
             </div>
           ) : (
             <p className="text-gray-900 dark:text-gray-100">Nenhum dado disponível</p>
+            
           )}
         </div>
       </div>
