@@ -33,14 +33,14 @@ function Header({
         {/* Right Side */}
 
         <div className="flex space-x-4 items-center ">
-          <span className="text-sm text-gray-500 md:text-xl">
+          <span className="text-sm text-black-500 md:text-xl">
             {uniqueOrderCount} ordens
           </span>
           <span className="text-sm text-green-500 md:text-xl">
-            {startedOrderCount} iniciadas
+            {startedOrderCount} OP iniciadas
           </span>
-          <span className="text-sm text-red-500 md:text-xl">
-            {waitingOrderCount} em espera
+          <span className="text-sm text-orange-500 md:text-xl">
+            {waitingOrderCount} OP em espera
           </span>
         </div>
 

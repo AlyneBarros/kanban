@@ -1,48 +1,69 @@
 import React from 'react';
 
 const Task = ({ order }) => {
-  const formatDateTime = (dateString, timeString) => {
-    if (!dateString || !timeString) return 'Em espera';
+  const formatDateUTC = function (sDate) {
+    if (!sDate) return "-";
 
-    const dateMilliseconds = parseInt(dateString.match(/\d+/)[0]);
+    const date = new Date(sDate);
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'UTC'
+    };
+
+    const formatter = new Intl.DateTimeFormat(undefined, options);
+    return formatter.format(date);
+  };
+
+  const formatDateTime = (dateString, timeString) => {
+    if (!dateString || !timeString) return null;
+
+    const dateMilliseconds = parseInt(dateString.match(/\d+/)[0], 10);
     const date = new Date(dateMilliseconds);
 
-    const time = timeString.replace('PT', '').replace('H', ':').replace('M', ':').replace('S', '');
-    const [hours, minutes, seconds] = time.split(':').map(Number);
+    const timeMatch = timeString.match(/PT(\d+)H(\d+)M(\d+)S/);
+    if (timeMatch) {
+      const [, hours, minutes, seconds] = timeMatch.map(Number);
+      date.setUTCHours(hours);
+      date.setUTCMinutes(minutes);
+      date.setUTCSeconds(seconds);
+    }
 
-    date.setHours(hours);
-    date.setMinutes(minutes);
-    date.setSeconds(seconds);
-
-    return date;
+    return isNaN(date.getTime()) ? null : date;
   };
 
   const formattedCheckIn = formatDateTime(order.Dtcheckin, order.Hrcheckin);
   const formattedCheckOut = formatDateTime(order.Dtcheckout, order.Hrcheckout);
 
   const calculateProductionTime = () => {
-    if (!formattedCheckIn) return 'Em espera';
+    if (!(formattedCheckIn instanceof Date)) return null;
 
     const now = new Date();
     const diffInMilliseconds = now - formattedCheckIn;
     const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
-    return Math.round(diffInHours) + ' hrs';
+    return `hrs: ${Math.round(diffInHours)} `;
   };
 
   const productionTime = calculateProductionTime();
 
-  const hasCheckIn = formattedCheckIn !== 'Em espera';
+  const isIniciado = order.Iniciado === true;
+  const cardClass = isIniciado ? 'border-l-8 border-green-500' : '';
 
   return (
-    <div className={`kanban-task bg-white rounded-lg shadow-md p-4 mb-4 mr-4 ${hasCheckIn ? 'border-l-8 border-green-500' : ''}`}>
+    <div className={`kanban-task rounded-lg shadow-md p-4 mb-4 mr-4 bg-white ${cardClass}`}>
       <p className="text-sm font-semibold mb-2">
         OP: {order.OrderNumber} | {order.Lote}
       </p>
       <p className="text-sm text-black-600">
-        {order.Material} | {order.Descmaterial} | {order.Quantidade} {order.Unidade}
+        {order.Material} | {order.Descmaterial} | {new Intl.NumberFormat('pt-BR').format(order.Quantidade)} {order.Unidade}
       </p>
       <p className="text-sm text-black-600">
-        {order.Duration} hrs: {formattedCheckIn instanceof Date ? productionTime : formattedCheckIn} | CheckIn: {formattedCheckIn instanceof Date ? formattedCheckIn.toLocaleString() : formattedCheckIn}   
+        {productionTime !== null ? `${productionTime} | CheckIn: ${formattedCheckIn.toLocaleString()}` : ''}
       </p>
     </div>
   );

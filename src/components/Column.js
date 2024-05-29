@@ -7,7 +7,17 @@ const DescProcesso = ({ descProcesso }) => (
   </p>
 );
 
-const Column = ({ descProcesso, orders }) => {
+const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight }) => {
+  const isEmpty = orders.length === 0;
+
+  if (isEmpty) {
+    return (
+      <div className="bg-gray-100 dark:bg-gray-800 flex items-center p-4 rounded-lg shadow-md mb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100" style={{ width: columnWidth, maxHeight: containerHeight }}>
+        <DescProcesso descProcesso={descProcesso} />
+      </div>
+    );
+  }
+
   const groupedOrdersByRecurso = orders.reduce((acc, order) => {
     if (!acc[order.Recurso]) {
       acc[order.Recurso] = [];
@@ -17,12 +27,12 @@ const Column = ({ descProcesso, orders }) => {
   }, {});
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100" style={{ width: '350px', maxHeight: "87vh" }}>
+    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100" style={{ width: columnWidth, maxHeight: containerHeight }}>
       <DescProcesso descProcesso={descProcesso} />
-      <div className="flex flex-col gap-4 ">
+      <div className="flex flex-col gap-4">
         {Object.keys(groupedOrdersByRecurso).map((recurso, index) => (
           <div key={index}>
-            <RecursoContainer recurso={recurso} orders={groupedOrdersByRecurso[recurso]} />
+            <RecursoContainer recurso={recurso} orders={groupedOrdersByRecurso[recurso]} cardWidth={cardWidth} />
           </div>
         ))}
       </div>

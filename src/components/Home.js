@@ -4,10 +4,13 @@ import Column from "./Column";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
+const serviceUrl = 'https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/';
 
-const serviceUrl = 'https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV';
 const username = 'usr_webapp';
-const password = 'Uqfn@2020@#';
+const password = 'kkk';
+
+// Ordem fixa dos processos desejados
+const fixedProcessOrder = ['PESAGEM', 'GRANULAÇAO','COMPRESSAO', 'DRAGEADORA', 'EQUALIZACAO', 'ESCOLHA', 'EMBALAGEM', 'REVISAO DOCUMENTAÇAO'];
 
 function Home() {
   const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
@@ -18,6 +21,10 @@ function Home() {
   const [uniqueOrderCount, setUniqueOrderCount] = useState(0);
   const [startedOrderCount, setStartedOrderCount] = useState(0);
   const [waitingOrderCount, setWaitingOrderCount] = useState(0);
+  const [cardWidth, setCardWidth] = useState('350px');
+  const [columnWidth, setColumnWidth] = useState('350px');
+  const [containerHeight, setContainerHeight] = useState('87vh');
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,17 +80,25 @@ function Home() {
     
           {orders.length > 0 ? (
             <div className="flex space-x-4 min-w-max">
-              {Array.from(new Set(orders.map(order => order.Processo))).map((processo, index) => (
-                <Column 
-                  key={index} 
-                  descProcesso={processo} 
-                  orders={orders.filter(order => order.Processo === processo)} 
-                />
-              ))}
+              {/* Renderizar colunas de acordo com a ordem fixa dos processos */}
+              {fixedProcessOrder.map((processo, index) => {
+                const ordersOfProcess = orders.filter(order => order.Processo === processo);
+                // Somente renderizar a coluna se houver pedidos
+                if (ordersOfProcess.length === 0) return null;
+                return (
+                  <Column 
+                    key={index} 
+                    descProcesso={processo} 
+                    orders={ordersOfProcess} 
+                    cardWidth={cardWidth}
+                    columnWidth={columnWidth}
+                    containerHeight={containerHeight}
+                  />
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-900 dark:text-gray-100">Nenhum dado disponível</p>
-            
           )}
         </div>
       </div>

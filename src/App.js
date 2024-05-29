@@ -1,12 +1,12 @@
-/* eslint-disable react/jsx-no-undef */
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Header from "./components/Header";
-import Home from "./components/Home";
-import boardsSlice from "./redux/boardsSlice";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/LoginPage';
+import Home from './components/Home';
+import { useDispatch, useSelector } from 'react-redux';
+import boardsSlice from './redux/boardsSlice';
 
 function App() {
-  const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const dispatch = useDispatch();
   const boards = useSelector((state) => state.boards);
   const activeBoard = boards.find((board) => board.isActive);
@@ -15,21 +15,12 @@ function App() {
     dispatch(boardsSlice.actions.setBoardActive({ index: 0 }));
 
   return (
-    <div className="">
-      <>
-        {boards.length > 0 ? (
-          <>
-            <Header
-              setIsBoardModalOpen={setIsBoardModalOpen}
-              isBoardModalOpen={isBoardModalOpen}
-            />
-            <Home />
-          </>
-        ) : (
-          <EmptyBoard type='add' />
-        )}
-      </>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login setAuthenticated={setIsAuthenticated} />} />
+        <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 
