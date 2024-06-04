@@ -1,22 +1,43 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
+import ErrorModal from './ErrorModal'; // Importe o componente ErrorModal
 
 function Login({ setAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errorModalOpen, setErrorModalOpen] = useState(false); // Estado para controlar a abertura do modal de erro
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault(); // Evita que o formulário seja submetido
 
-    // Supondo que a autenticação seja bem-sucedida
-    if (username === 'usr_webapp' && password === 'kkk') {
-      setAuthenticated(true);
-      navigate('/Home');
-    } else {
-      alert('Credenciais inválidas');
+    try {
+      const response = await fetch('https://launchpad.uniaoquimica.com.br/LaunchpadAPI/Login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "Usuario": username,
+          "Senha": password
+        }),
+      });
+
+      if (response.ok) {
+        setAuthenticated(true);
+        navigate('/Home');
+      } else {
+        setErrorModalOpen(true); // Abre o modal de erro se as credenciais estiverem incorretas
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      alert('Ocorreu um erro ao fazer login. Por favor, tente novamente mais tarde.');
     }
+  };
+
+  const handleCloseErrorModal = () => {
+    setErrorModalOpen(false); // Fecha o modal de erro
   };
 
   return (
@@ -32,6 +53,9 @@ function Login({ setAuthenticated }) {
           </form>
         </MDBCardBody>
       </MDBCard>
+      {/* Renderização condicional do modal de erro */}
+      
+      {errorModalOpen && <ErrorModal onClose={handleCloseErrorModal} selectedLanguage="pt" />}
     </MDBContainer>
   );
 }

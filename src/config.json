@@ -1,6 +1,24 @@
 {
-    "columnWidth": "350px",
-    "containerHeight": "87vh",
-    "cardWidth": "350px"
+  "sizes": {
+    "small": {
+      "cardWidth": "250px",
+      "columnWidth": "250px",
+      "containerHeight": "70vh"
+    },
+    "medium": {
+      "cardWidth": "350px",
+      "columnWidth": "350px",
+      "containerHeight": "87vh"
+    },
+    "large": {
+      "cardWidth": "450px",
+      "columnWidth": "450px",
+      "containerHeight": "100vh"
+    },
+    "extraLarge": {
+      "cardWidth": "550px",
+      "columnWidth": "550px",
+      "containerHeight": "100vh"
+    }
   }
-  
+}
