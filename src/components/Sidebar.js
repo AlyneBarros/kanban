@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FaBars, FaTimes } from "react-icons/fa";
 import classNames from "classnames";
@@ -70,7 +70,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
     );
 
   return (
-    <div>
+    <div className={`min-h-screen ${isSideBarOpen ? 'w-72' : 'w-16'} duration-500`}>
       <div className={sidebarOpenClasses}>
         <div className="flex flex-col h-full w-full p-4">
           <div
@@ -78,7 +78,6 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
             onClick={toggleSidebar}
           >
             <RiMenu2Fill size={35} className="text-black-600" />
-          
           </div>
 
           <div className="flex-1">

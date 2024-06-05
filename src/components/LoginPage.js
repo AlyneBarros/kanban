@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
-import ErrorModal from './ErrorModal'; // Importe o componente ErrorModal
+import ErrorModal from './ErrorModal';
+import Cookies from 'js-cookie'; // Importe a função Cookies
 
 function Login({ setAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorModalOpen, setErrorModalOpen] = useState(false); // Estado para controlar a abertura do modal de erro
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita que o formulário seja submetido
+    e.preventDefault();
 
     try {
       const response = await fetch('https://launchpad.uniaoquimica.com.br/LaunchpadAPI/Login', {
@@ -26,9 +27,11 @@ function Login({ setAuthenticated }) {
 
       if (response.ok) {
         setAuthenticated(true);
+        // Salvar o nome de usuário em um cookie após o login bem-sucedido
+        Cookies.set('username', username);
         navigate('/Home');
       } else {
-        setErrorModalOpen(true); // Abre o modal de erro se as credenciais estiverem incorretas
+        setErrorModalOpen(true);
       }
     } catch (error) {
       console.error('Erro ao fazer login:', error);
@@ -37,7 +40,7 @@ function Login({ setAuthenticated }) {
   };
 
   const handleCloseErrorModal = () => {
-    setErrorModalOpen(false); // Fecha o modal de erro
+    setErrorModalOpen(false);
   };
 
   return (
@@ -53,8 +56,6 @@ function Login({ setAuthenticated }) {
           </form>
         </MDBCardBody>
       </MDBCard>
-      {/* Renderização condicional do modal de erro */}
-      
       {errorModalOpen && <ErrorModal onClose={handleCloseErrorModal} selectedLanguage="pt" />}
     </MDBContainer>
   );
