@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Column from "./Column";
 import Sidebar from "./Sidebar";
@@ -37,15 +37,17 @@ function Home() {
     columnWidth: "350px",
     containerHeight: "87vh"
   });
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState(5);
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const auth = btoa(`${username}:${password}`);
         
-        // Fetching orders
         const responseOrders = await axios.get(
-          `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'`,
+          `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&sap-client=300`,
           {
             headers: {
               Authorization: `Basic ${auth}`,
@@ -75,7 +77,6 @@ function Home() {
           setAreaTitle(ordersOfSg00[0].Area);
         }
 
-        // Fetching areas
         const responseAreas = await axios.get(
           `${serviceUrl}/OrdemSet?$select=Area&$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&$format=json`,
           {
@@ -89,7 +90,7 @@ function Home() {
         console.log('Areas response:', responseAreas.data);
 
         const areasData = responseAreas.data.d.results.map(item => item.Area);
-        const uniqueAreas = [...new Set(areasData)].filter(area => area); // Remove valores duplicados e nulos
+        const uniqueAreas = [...new Set(areasData)].filter(area => area);
         setAreas(uniqueAreas);
       } catch (error) {
         console.error("Erro ao buscar dados da API OData:", error);
@@ -98,6 +99,7 @@ function Home() {
 
     fetchData();
   }, []);
+  
 
   const handleSetDefaultSizes = () => {
     setCardWidth(defaultSizes.cardWidth);
@@ -161,6 +163,7 @@ function Home() {
         defaultSizes={defaultSizes}
         genomTitle={genomTitle}
         areaTitle={areaTitle}
+        
       />
 
       <Sidebar

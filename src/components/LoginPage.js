@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from './ErrorModal';
-import Cookies from 'js-cookie'; // Importe a função Cookies
+import Cookies from 'js-cookie';
 
 function Login({ setAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Limpar estado de autenticação ao carregar a página de login
+    setAuthenticated(false);
+    Cookies.remove('username');
+  }, [setAuthenticated]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,7 +33,6 @@ function Login({ setAuthenticated }) {
 
       if (response.ok) {
         setAuthenticated(true);
-        // Salvar o nome de usuário em um cookie após o login bem-sucedido
         Cookies.set('username', username);
         navigate('/Home');
       } else {

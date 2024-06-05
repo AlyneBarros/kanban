@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { RxDividerVertical } from "react-icons/rx";
+import { BiLeftIndent } from "react-icons/bi";
 import classNames from "classnames";
-import { RiMenu2Fill, RiMenu3Fill } from "react-icons/ri";
+import useDarkMode from "../hooks/useDarkMode";
 
 function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
   const toggleSidebar = () => {
     setIsSideBarOpen((curr) => !curr);
   };
+  const [colorTheme, setTheme] = useDarkMode();
+  const [darkSide, setDarkSide] = useState(colorTheme === "light" ? true : false);
 
+  const toggleDarkMode = (checked) => {
+    setTheme(colorTheme);
+    setDarkSide(checked);
+  };
   const sidebarOpenClasses = classNames(
     "min-w-[261px]",
     "bg-white",
@@ -28,20 +35,32 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
   );
 
   const sidebarClosedClasses = classNames(
-    "rounded-r-full",
+    "rounded",
     "w-[56px]",
-    "h-[48px]",
+    "h-[106px]",
     "flex",
     "items-center",
     "justify-center",
     "fixed",
-    "bottom-[32px]",
+    "top-1/2",
+    "transform",
+    "-translate-y-1/2",
     "cursor-pointer",
     "duration-300",
     "left-0",
-    "md:bottom-auto",
-    "md:top-[65px]",
-    "z-20"
+    "z-20",
+    "hover:bg-gray-200",
+    "dark:hover:bg-gray-700"
+  );
+
+  const arrowClasses = classNames(
+    "transform",
+    "transition-transform",
+    {
+      "rotate-180": isSideBarOpen,
+      "text-black": !darkSide,
+      "text-white": darkSide,
+    }
   );
 
   const areaItemClasses = (isActive) =>
@@ -57,13 +76,13 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
       "py-2",
       "rounded-r-full",
       {
-        "bg-[#635fc7]": isActive,
-        "dark:bg-[#635fc7]": isActive,
+        "bg-[#b81414]": isActive,
+        "dark:bg-[#b81414]": isActive,
         "text-white": isActive,
         "text-gray-400": !isActive,
-        "hover:bg-[#635fc7]": !isActive,
+        "hover:bg-[#ec5353]": !isActive,
         "hover:text-white": !isActive,
-        "dark:hover:bg-[#635fc7]": !isActive,
+        "dark:hover:bg-[#ec5353]": !isActive,
         "hover:transition-all": !isActive,
         "duration-300": !isActive,
       }
@@ -71,13 +90,14 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
 
   return (
     <div className={`min-h-screen ${isSideBarOpen ? 'w-72' : 'w-16'} duration-500`}>
-      <div className={sidebarOpenClasses}>
+      <div className={sidebarOpenClasses} aria-expanded={isSideBarOpen} role="navigation">
         <div className="flex flex-col h-full w-full p-4">
           <div
-            className="flex items-center justify-start cursor-pointer space-x-3 w-full px-4 py-2 rounded-r-full"
+            className="flex items-center justify-end cursor-pointer space-x-3 w-full  py-2 rounded-r-full"
             onClick={toggleSidebar}
+            aria-label="Toggle Sidebar"
           >
-            <RiMenu2Fill size={35} className="text-black-600" />
+           <BiLeftIndent size={35} className={darkSide ? "text-white" : "text-gray-500"} />
           </div>
 
           <div className="flex-1">
@@ -90,6 +110,9 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
                 key={index}
                 onClick={() => onAreaClick(area)}
                 className={areaItemClasses(index === 0)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter') onAreaClick(area); }}
               >
                 <p className="font-bold">{area}</p>
               </div>
@@ -98,9 +121,11 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
         </div>
       </div>
       {!isSideBarOpen && (
-        <div className={sidebarClosedClasses} onClick={toggleSidebar}>
-          <RiMenu3Fill size={35} className="text-black" />
-        </div>
+        <div className={sidebarClosedClasses} onClick={toggleSidebar} aria-label="Open Sidebar">
+       <RxDividerVertical size={500} className={` ${darkSide ? 'text-white' : 'text-gray-500'}`}  />
+
+      </div>
+      
       )}
     </div>
   );
@@ -111,6 +136,7 @@ Sidebar.propTypes = {
   setIsSideBarOpen: PropTypes.func.isRequired,
   areas: PropTypes.arrayOf(PropTypes.string).isRequired,
   onAreaClick: PropTypes.func.isRequired,
+  darkSide: PropTypes.bool.isRequired,
 };
 
 export default Sidebar;
