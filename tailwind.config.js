@@ -7,7 +7,10 @@ module.exports = {
   },
   plugins: [
     require("tailwind-scrollbar-hide"),
-    require('tailwind-scrollbar')
+    require('tailwind-scrollbar'),
+    require('@tailwindcss/forms'),
+    
+    
   ],
   resolve: {
     fallback: {

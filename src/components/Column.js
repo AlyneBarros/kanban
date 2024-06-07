@@ -1,6 +1,7 @@
 import React from 'react';
 import ColumnHeader from './ColumnHeader';
 import RecursoContainer from './RecursoContainer';
+import "./Column.css";
 
 const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight }) => {
   const isEmpty = orders.length === 0;
@@ -12,11 +13,10 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
     return acc;
   }, {});
 
-  
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4" style={{ width: columnWidth, maxHeight: containerHeight }}>
       <ColumnHeader descProcesso={descProcesso} totalOrders={orders.length} />
-      <div className="overflow-y-auto max-h-[calc(100%-3.5rem)] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+      <div className="column-list max-h-[calc(100%-3.5rem)]">
         {isEmpty ? (
           <p className="text-gray-900 dark:text-gray-100">Nenhuma ordem disponível</p>
         ) : (

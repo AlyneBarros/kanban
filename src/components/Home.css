@@ -1,0 +1,24 @@
+.home-list {
+    /* Equivalente a max-h-80 do Tailwind */
+   overflow: hidden;  /* Esconde a scrollbar por padrão */
+   border-radius: 0.25rem;
+ }
+ 
+ .home-list:hover {
+   overflow-y: auto; /* Mostra a scrollbar no hover */
+ }
+ 
+ .home-list::-webkit-scrollbar {
+   width: 0.5rem; /* Largura da scrollbar */
+ }
+ 
+ .home-list::-webkit-scrollbar-thumb {
+   background-color: rgb(207, 207, 207); /* Cor do thumb da scrollbar (gray-400) */
+   border-radius: 0.25rem; /* Arredondamento do thumb da scrollbar */
+ }
+ 
+ .home-list::-webkit-scrollbar-track {
+    background-color:  hsla(0, 0%, 0%, 0); /* Cor do track da scrollbar (gray-100) */
+ }
+
+

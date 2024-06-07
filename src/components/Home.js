@@ -3,6 +3,7 @@ import axios from "axios";
 import Column from "./Column";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import "./RecursoContainer.css";
 
 const serviceUrl = "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
 const username = "usr_webapp";
@@ -39,67 +40,76 @@ function Home() {
   });
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState(5);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [loading, setLoading] = useState(false); // Estado para controlar o carregamento
+
+  const currentDate = new Date();
+const datePart = currentDate.toLocaleDateString();
+const timePart = currentDate.toLocaleTimeString();
   const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const auth = btoa(`${username}:${password}`);
-        
-        const responseOrders = await axios.get(
-          `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&sap-client=300`,
-          {
-            headers: {
-              Authorization: `Basic ${auth}`,
-              Accept: "application/json"
-            }
-          }
-        );
-
-        console.log('Orders response:', responseOrders.data);
-
-        const ordersOfSg00 = responseOrders.data.d.results;
-        setOrders(ordersOfSg00);
-
-        if (ordersOfSg00.length > 0) {
-          const uniqueOrders = new Set(
-            ordersOfSg00.map(order => order.OrderNumber)
-          );
-          setUniqueOrderCount(uniqueOrders.size);
-
-          const startedOrders = ordersOfSg00.filter(order => order.Iniciado === true);
-          const waitingOrders = ordersOfSg00.filter(order => !order.Iniciado);
-
-          setStartedOrderCount(startedOrders.length);
-          setWaitingOrderCount(waitingOrders.length);
-
-          setGenomTitle(ordersOfSg00[0].Centro === 'SG00' ? 'Genom' : ordersOfSg00[0].Centro);
-          setAreaTitle(ordersOfSg00[0].Area);
-        }
-
-        const responseAreas = await axios.get(
-          `${serviceUrl}/OrdemSet?$select=Area&$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&$format=json`,
-          {
-            headers: {
-              Authorization: `Basic ${auth}`,
-              Accept: "application/json"
-            }
-          }
-        );
-
-        console.log('Areas response:', responseAreas.data);
-
-        const areasData = responseAreas.data.d.results.map(item => item.Area);
-        const uniqueAreas = [...new Set(areasData)].filter(area => area);
-        setAreas(uniqueAreas);
-      } catch (error) {
-        console.error("Erro ao buscar dados da API OData:", error);
-      }
-    };
-
     fetchData();
   }, []);
-  
+
+  const fetchData = async () => {
+    try {
+      setLoading(true); // Inicia o carregamento
+      const auth = btoa(`${username}:${password}`);
+      
+      const responseOrders = await axios.get(
+        `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&sap-client=300`,
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            Accept: "application/json"
+          }
+        }
+      );
+
+      console.log('Orders response:', responseOrders.data);
+
+      const ordersOfSg00 = responseOrders.data.d.results;
+      setOrders(ordersOfSg00);
+
+      if (ordersOfSg00.length > 0) {
+        const uniqueOrders = new Set(
+          ordersOfSg00.map(order => order.OrderNumber)
+        );
+        setUniqueOrderCount(uniqueOrders.size);
+
+        const startedOrders = ordersOfSg00.filter(order => order.Iniciado === true);
+        const waitingOrders = ordersOfSg00.filter(order => !order.Iniciado);
+
+        setStartedOrderCount(startedOrders.length);
+        setWaitingOrderCount(waitingOrders.length);
+
+        setGenomTitle(ordersOfSg00[0].Centro === 'SG00' ? 'Genom' : ordersOfSg00[0].Centro);
+        setAreaTitle(ordersOfSg00[0].Area);
+      }
+
+      const responseAreas = await axios.get(
+        `${serviceUrl}/OrdemSet?$select=Area&$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&$format=json`,
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            Accept: "application/json"
+          }
+        }
+      );
+
+      console.log('Areas response:', responseAreas.data);
+
+      const areasData = responseAreas.data.d.results.map(item => item.Area);
+      const uniqueAreas = [...new Set(areasData)].filter(area => area);
+      setAreas(uniqueAreas);
+      setLastUpdated(new Date().toLocaleString()); // Atualiza a última atualização
+    } catch (error) {
+      console.error("Erro ao buscar dados da API OData:", error);
+    } finally {
+      setLoading(false); // Termina o carregamento
+    }
+  };
 
   const handleSetDefaultSizes = () => {
     setCardWidth(defaultSizes.cardWidth);
@@ -116,6 +126,7 @@ function Home() {
 
   const handleAreaClick = async (area) => {
     try {
+      setLoading(true); // Inicia o carregamento
       const auth = btoa(`${username}:${password}`);
       const responseOrders = await axios.get(
         `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq '${area}'`,
@@ -147,13 +158,16 @@ function Home() {
         setGenomTitle(ordersOfArea[0].Centro === 'SG00' ? 'Genom' : ordersOfArea[0].Centro);
         setAreaTitle(ordersOfArea[0].Area);
       }
+      setLastUpdated(new Date().toLocaleString()); // Atualiza a última atualização
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
+    } finally {
+      setLoading(false); // Termina o carregamento
     }
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+    <div className=" flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100">
       <Header
         uniqueOrderCount={uniqueOrderCount}
         startedOrderCount={startedOrderCount}
@@ -163,7 +177,9 @@ function Home() {
         defaultSizes={defaultSizes}
         genomTitle={genomTitle}
         areaTitle={areaTitle}
-        
+        onRefresh={fetchData} // Passa a função de atualização para o Header
+        lastUpdated={lastUpdated} // Passa o estado da última atualização para o Header
+        loading={loading} // Passa o estado de carregamento para o Header
       />
 
       <Sidebar
@@ -185,29 +201,24 @@ function Home() {
         </header>
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
-          {orders.length > 0 ? (
-            <div className="flex space-x-4 min-w-max">
-              {fixedProcessOrder.map((processo, index) => {
-                const ordersOfProcess = orders.filter(
-                  order => order.Processo === processo
-                );
-                if (ordersOfProcess.length === 0) return null;
-                return (
-                  <Column
-                    key={index}
-                    descProcesso={processo}
-                    orders={ordersOfProcess}
-                    cardWidth={cardWidth}
-                    columnWidth={columnWidth}
-                    containerHeight={containerHeight}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-gray-900 dark:text-gray-100">Nenhum dado disponível</p>
-          )}
-        </div>
+  <div className="flex space-x-4 min-w-max">
+    {fixedProcessOrder.map((processo, index) => {
+      const ordersOfProcess = orders.filter(
+        order => order.Processo === processo
+      );
+      return (
+        <Column
+          key={index}
+          descProcesso={processo}
+          orders={ordersOfProcess}
+          cardWidth={cardWidth}
+          columnWidth={columnWidth}
+          containerHeight={containerHeight}
+        />
+      );
+    })}
+  </div>
+</div>
       </div>
     </div>
   );

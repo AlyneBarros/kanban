@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Task from "./Task";
-import "tailwindcss/tailwind.css";
+import "./RecursoContainer.css"
 
 const RecursoContainer = ({ recurso, orders, cardWidth }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -20,24 +20,18 @@ const RecursoContainer = ({ recurso, orders, cardWidth }) => {
         style={{ cursor: "ns-resize" }}
       >
         <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-4">
-          {recurso} (operações: {orders.length})
+          {recurso} ({orders.length})
         </h4>
         <button
           onClick={toggleOpen}
           className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-4"
         >
-          {isOpen ? "-" : "+"}
+          {isOpen ? "^" : "<"}
         </button>
       </div>
-      <div
-        className={`task-list ${
-          isOpen
-            ? "overflow-y-auto max-h-80 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100"
-            : "overflow-hidden"
-        }`}
-      >
+      <div className={`recurso-container-list ${isOpen ? "" : "max-h-80"}`}>
         {isOpen && (
-          <div className="gap-y-4">
+          <div className="gap-y-9">
             {orders.map((order, index) => (
               <Task key={index} order={order} cardWidth={cardWidth} />
             ))}

@@ -122,7 +122,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
       </div>
       {!isSideBarOpen && (
         <div className={sidebarClosedClasses} onClick={toggleSidebar} aria-label="Open Sidebar">
-       <RxDividerVertical size={500} className={` ${darkSide ? 'text-white' : 'text-gray-500'}`}  />
+       <RxDividerVertical size={500} className={` ${darkSide ? 'text-white' : 'text-gray-800'}`}  />
 
       </div>
       

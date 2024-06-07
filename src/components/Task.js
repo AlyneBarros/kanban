@@ -66,7 +66,7 @@ const Task = ({ order }) => {
         {order.Material} | {order.Descmaterial} | {new Intl.NumberFormat('pt-BR').format(order.Quantidade)} {order.Unidade}
       </p>
       <p className="text-sm text-black-600">
-        {productionTime !== null ? `${productionTime} | CheckIn: ${formattedCheckIn.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}` : ''}
+        {productionTime !== null ? `${productionTime} | CheckIn: ${formattedCheckIn.toLocaleString({ timeZone: 'America/Sao_Paulo' })}` : ''}
       </p>
       {formattedCheckOut && (
         <p className="text-sm text-black-600">
