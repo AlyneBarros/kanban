@@ -8,7 +8,6 @@ import useDarkMode from "../hooks/useDarkMode";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { FaUserCircle } from "react-icons/fa";
 import { MdDarkMode, MdOutlineLightMode } from "react-icons/md";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { RxUpdate } from "react-icons/rx";
 
 function Header({
@@ -23,6 +22,7 @@ function Header({
   onRefresh,
   lastUpdated,
   loading,
+  isProcessing,
 }) {
   const navigate = useNavigate();
   const currentDate = new Date();
@@ -43,12 +43,14 @@ function Header({
     colorTheme === "light" ? true : false
   );
 
+  const [viewEmptyColumns, setViewEmptyColumns] = useState(false); // Estado para controlar a visualização de colunas vazias
+
   const toggleDarkMode = (checked) => {
     setTheme(colorTheme);
     setDarkSide(checked);
   };
 
-  const handleToggleAutoScroll = () => {
+  const toggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
   };
 
@@ -60,30 +62,20 @@ function Header({
     setCustomSizes(cardWidth, columnWidth, containerHeight);
   };
 
+  useEffect(() => {
+    let intervalId;
+    if (autoScrollEnabled) {
+      intervalId = setInterval(scrollContainerHorizontal, 1000 / scrollSpeed);
+    }
+    return () => clearInterval(intervalId);
+  }, [autoScrollEnabled, scrollSpeed]);
+
   const scrollContainerHorizontal = () => {
     const container = document.getElementById("scroll-container");
     if (container) {
-      container.scrollLeft += 1;
+      container.scrollLeft += 5; // Ajuste a quantidade de rolagem conforme necessário
     }
   };
-
-  useEffect(() => {
-    if (autoScrollEnabled) {
-      const intervalId = setInterval(
-        scrollContainerHorizontal,
-        100 / scrollSpeed
-      );
-      setScrollInterval(intervalId);
-    } else if (scrollInterval) {
-      clearInterval(scrollInterval);
-      setScrollInterval(null);
-    }
-    return () => {
-      if (scrollInterval) {
-        clearInterval(scrollInterval);
-      }
-    };
-  }, [autoScrollEnabled, scrollInterval, scrollSpeed]);
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -100,10 +92,7 @@ function Header({
               </h3>
             </div>
           </div>
-          
-      
-         
-          
+
           <div className="flex justify-center items-center space-x-2">
             <p className=" text-lg text-gray-700 dark:text-gray-300">
               Ultima atualização:
@@ -112,16 +101,13 @@ function Header({
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Data: {datePart}
               </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
+              <p className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                 Hora: {timePart}
               </p>
             </div>
           </div>
 
-          <div className="flex space-x-4 items-center">
-            <button onClick={onRefresh} className="  h-8 w-8 mr-3">
-              <RxUpdate className=" h-8 w-8 mr-3" />
-            </button>
+          
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center">
@@ -140,9 +126,14 @@ function Header({
                 </span>
               </div>
             </div>
-
+            <div className="flex space-x-4 items-center">
+            <button onClick={onRefresh} className="  h-8 w-8 mr-4">
+              <RxUpdate
+                className={`h-8 w-8 mr-1 ${loading ? "animate-spin" : ""}`}
+              />
+            </button>
             <Menu as="div" className="relative">
-              <Menu.Button className="flex items-center space-x-6">
+              <Menu.Button className="flex items-center space-x-4">
                 <img
                   src={settingsIcon}
                   alt="Settings"
@@ -160,7 +151,7 @@ function Header({
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="absolute right-0 mt-2 w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="absolute right-0 mt-2  min-h-screen  w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="p-5 space-y-2">
                     <div className="flex justify-center space-x-4 items-center">
                       <button
@@ -234,27 +225,48 @@ function Header({
                         Extra Grande
                       </button>
                       {/* <button onClick={setDefaultSizes} className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300">Restaurar Padrão</button> */}
+
+                      {/* Botões para alternar entre a visualização de colunas vazias e não vazias */}
+                      <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
+                        Visualizar Colunas:
+                      </div>
+                      <button
+                        onClick={() => setViewEmptyColumns(false)}
+                        className={`w-full text-left px-4 py-2 text-sm ${
+                          !viewEmptyColumns
+                            ? "text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Apenas com Dados
+                      </button>
+                      <button
+                        onClick={() => setViewEmptyColumns(true)}
+                        className={`w-full text-left px-4 py-2 text-sm ${
+                          viewEmptyColumns
+                            ? "text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Incluindo Vazias
+                      </button>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <button
-                        onClick={handleToggleAutoScroll}
-                        className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
-                      >
-                        {autoScrollEnabled
-                          ? "Desativar Auto-Rolagem"
-                          : "Ativar Auto-Rolagem"}
-                      </button>
-                      {autoScrollEnabled && (
-                        <input
-                          type="number"
-                          min="1"
-                          max="20"
-                          value={scrollSpeed}
-                          onChange={(e) =>
-                            handleSetScrollSpeed(Number(e.target.value))
-                          }
-                          className="w-16 bg-gray-200 text-gray-700 text-center rounded-md"
-                        />
+                    <button
+            onClick={toggleAutoScroll}
+            className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+          >
+            {autoScrollEnabled ? "Desativar Auto-Scroll" : "Ativar Auto-Scroll"}
+          </button>
+          {autoScrollEnabled && (
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={scrollSpeed}
+              onChange={(e) => handleSetScrollSpeed(Number(e.target.value))}
+              className="w-16 bg-gray-200 text-gray-700 text-center rounded-md"
+            />
                       )}
                     </div>
                   </div>
@@ -269,3 +281,4 @@ function Header({
 }
 
 export default Header;
+
