@@ -5,6 +5,8 @@ import "./RecursoContainer.css"
 const RecursoContainer = ({ recurso, orders, cardWidth }) => {
   const [isOpen, setIsOpen] = useState(true);
   const containerRef = useRef(null);
+  const [autoScrollVerticalEnabled, setAutoScrollVerticalEnabled] = useState(false);
+
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
@@ -29,7 +31,9 @@ const RecursoContainer = ({ recurso, orders, cardWidth }) => {
           {isOpen ? "^" : "<"}
         </button>
       </div>
-      <div className={`recurso-container-list ${isOpen ? "" : "max-h-80"}`}>
+      
+<div className="recurso-container-list" style={{ maxHeight: isOpen ? '300px' : '0', overflowY: 'auto' }}>
+
         {isOpen && (
           <div className="gap-y-9">
             {orders.map((order, index) => (

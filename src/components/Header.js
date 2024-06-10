@@ -10,6 +10,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { MdDarkMode, MdOutlineLightMode } from "react-icons/md";
 import { RxUpdate } from "react-icons/rx";
 
+
 function Header({
   uniqueOrderCount,
   startedOrderCount,
@@ -23,6 +24,11 @@ function Header({
   lastUpdated,
   loading,
   isProcessing,
+  scrollContainerRef,
+  showAllColumns,
+  setShowAllColumns, // Recebe o setter
+  onToggleAutoScroll // Remove default value here
+
 }) {
   const navigate = useNavigate();
   const currentDate = new Date();
@@ -107,26 +113,24 @@ function Header({
             </div>
           </div>
 
-          
-
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center">
-                <span className="text-sl text-gray-600 dark:text-gray-300 ml-1">
-                  {uniqueOrderCount} ordens
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sl text-green-500 ml-1">
-                  {startedOrderCount} Operações iniciadas
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sl text-orange-500 ml-1">
-                  {waitingOrderCount} Operações em espera
-                </span>
-              </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <span className="text-sl text-gray-600 dark:text-gray-300 ml-1">
+                {uniqueOrderCount} ordens
+              </span>
             </div>
-            <div className="flex space-x-4 items-center">
+            <div className="flex items-center">
+              <span className="text-sl text-green-500 ml-1">
+                {startedOrderCount} Operações iniciadas
+              </span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-sl text-orange-500 ml-1">
+                {waitingOrderCount} Operações em espera
+              </span>
+            </div>
+          </div>
+          <div className="flex space-x-4 items-center">
             <button onClick={onRefresh} className="  h-8 w-8 mr-4">
               <RxUpdate
                 className={`h-8 w-8 mr-1 ${loading ? "animate-spin" : ""}`}
@@ -188,6 +192,25 @@ function Header({
                         </Switch>
                       </div>
                     </div>
+                    <div className="flex items-center space-x-3  ">
+                        <Switch
+                          checked={showAllColumns}
+                          onChange={setShowAllColumns}
+                          className={`${
+                            showAllColumns ? "bg-gray-500" : "bg-gray-800"
+                          } relative inline-flex h-6 w-11 items-center rounded-full`}
+                        >
+                          <span className="sr-only">Show All Columns</span>
+                          <span
+                            className={`${
+                              showAllColumns ? "translate-x-6" : "translate-x-1"
+                            } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                          />
+                        </Switch >
+                        <span className="text-gray-900 dark:text-gray-100 ">
+                          Mostrar todas colunas
+                        </span>
+                      </div>
                     <div className="p-2 space-y-2">
                       <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
                         Tamanho das Colunas:
@@ -224,51 +247,29 @@ function Header({
                       >
                         Extra Grande
                       </button>
-                      {/* <button onClick={setDefaultSizes} className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300">Restaurar Padrão</button> */}
 
-                      {/* Botões para alternar entre a visualização de colunas vazias e não vazias */}
-                      <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
-                        Visualizar Colunas:
-                      </div>
-                      <button
-                        onClick={() => setViewEmptyColumns(false)}
-                        className={`w-full text-left px-4 py-2 text-sm ${
-                          !viewEmptyColumns
-                            ? "text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        Apenas com Dados
-                      </button>
-                      <button
-                        onClick={() => setViewEmptyColumns(true)}
-                        className={`w-full text-left px-4 py-2 text-sm ${
-                          viewEmptyColumns
-                            ? "text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        Incluindo Vazias
-                      </button>
+                      
                     </div>
                     <div className="flex items-center space-x-4">
-                    <button
-            onClick={toggleAutoScroll}
-            className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
-          >
-            {autoScrollEnabled ? "Desativar Auto-Scroll" : "Ativar Auto-Scroll"}
-          </button>
-          {autoScrollEnabled && (
-            <input
-              type="number"
-              min="1"
-              max="20"
-              value={scrollSpeed}
-              onChange={(e) => handleSetScrollSpeed(Number(e.target.value))}
-              className="w-16 bg-gray-200 text-gray-700 text-center rounded-md"
-            />
-                      )}
-                    </div>
+                    <Switch
+  checked={autoScrollEnabled}
+  onChange={onToggleAutoScroll}
+  className={`${
+    autoScrollEnabled ? "bg-gray-500" : "bg-gray-800"
+  } relative inline-flex h-6 w-11 items-center rounded-full`}
+>
+  <span className="sr-only">Toggle auto scroll</span>
+  <span
+    className={`${
+      autoScrollEnabled ? "translate-x-6" : "translate-x-1"
+    } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+  />
+</Switch>
+<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+  {autoScrollEnabled ? "Auto Scroll Enabled" : "Auto Scroll Disabled"}
+</span>
+
+</div>
                   </div>
                 </Menu.Items>
               </Transition>
@@ -281,4 +282,3 @@ function Header({
 }
 
 export default Header;
-

@@ -6,7 +6,8 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import "./RecursoContainer.css";
 
-const serviceUrl = "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
+const serviceUrl =
+  "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
 const username = "usr_webapp";
 const password = "Uqfn@2020@#";
 
@@ -44,46 +45,38 @@ function Home() {
   const [lastUpdated, setLastUpdated] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollContainerRef = useRef(null);
+  const [showAllColumns, setShowAllColumns] = useState(true); // Novo estado para controlar a exibição das colunas
 
-
-  
   useEffect(() => {
     fetchData();
 
     const intervalId = setInterval(fetchData, 300000); // 300000 ms = 5 minutes
-
     return () => clearInterval(intervalId); // Clear interval on component unmount
   }, []);
 
   useEffect(() => {
     const hash = window.location.hash.substr(1); // Obtém o hash da URL
     if (hash) {
-        // Divide a hash em partes separadas pelo caractere "&"
-        const [centro, area] = hash.split("&");
+      // Divide a hash em partes separadas pelo caractere "&"
+      const [centro, area] = hash.split("&");
 
-        // Lógica para lidar com a navegação inicial com base no centro e na área
-        handleAreaClick(area, centro);
+      // Lógica para lidar com a navegação inicial com base no centro e na área
+      handleAreaClick(area, centro);
     }
-}, []);
+  }, []);
 
-useEffect(() => {
-  // Verifique se o auto scroll está ativado
-  if (autoScrollEnabled) {
-    // Obtenha o elemento do contêiner de rolagem usando a referência
-    const container = scrollContainerRef.current;
-    // Verifique se o contêiner existe e o role automaticamente
-    if (container) {
-      // Use um intervalo para rolar o contêiner horizontalmente
-      const intervalId = setInterval(() => {
-        // Atualize a posição de rolagem do contêiner
-        container.scrollLeft += scrollSpeed;
-      }, 1000 / scrollSpeed); // Ajuste a velocidade de acordo com scrollSpeed
+  useEffect(() => {
+    if (autoScrollEnabled) {
+      const container = scrollContainerRef.current;
+      if (container) {
+        const intervalId = setInterval(() => {
+          container.scrollLeft += scrollSpeed;
+        }, 1000 / scrollSpeed);
 
-      // Retorne uma função de limpeza para limpar o intervalo quando o componente é desmontado
-      return () => clearInterval(intervalId);
+        return () => clearInterval(intervalId);
+      }
     }
-  }
-}, [autoScrollEnabled, scrollSpeed]); // Dependências do efeito
+  }, [autoScrollEnabled, scrollSpeed]);
 
   const fetchData = async () => {
     try {
@@ -100,30 +93,24 @@ useEffect(() => {
         }
       );
 
-      console.log("Orders response:", responseOrders.data);
-
+   
       const ordersOfSg00 = responseOrders.data.d.results;
       setOrders(ordersOfSg00);
 
       if (ordersOfSg00.length > 0) {
-        const uniqueOrders = new Set(
-          ordersOfSg00.map((order) => order.OrderNumber)
-        );
+        const uniqueOrders = new Set(ordersOfSg00.map(order => order.OrderNumber));
         setUniqueOrderCount(uniqueOrders.size);
 
-        const startedOrders = ordersOfSg00.filter(
-          (order) => order.Iniciado === true
-        );
-        const waitingOrders = ordersOfSg00.filter((order) => !order.Iniciado);
+        const startedOrders = ordersOfSg00.filter(order => order.Iniciado === true);
+        const waitingOrders = ordersOfSg00.filter(order => !order.Iniciado);
 
         setStartedOrderCount(startedOrders.length);
         setWaitingOrderCount(waitingOrders.length);
 
-        setGenomTitle(
-          ordersOfSg00[0].Centro === "SG00" ? "Genom" : ordersOfSg00[0].Centro
-        );
+        setGenomTitle(ordersOfSg00[0].Centro === "SG00" ? "Genom" : ordersOfSg00[0].Centro);
         setAreaTitle(ordersOfSg00[0].Area);
       }
+       
 
       const responseAreas = await axios.get(
         `${serviceUrl}/OrdemSet?$select=Area&$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&$format=json`,
@@ -135,16 +122,16 @@ useEffect(() => {
         }
       );
 
-      console.log("Areas response:", responseAreas.data);
+      
 
-      const areasData = responseAreas.data.d.results.map((item) => item.Area);
-      const uniqueAreas = [...new Set(areasData)].filter((area) => area);
+      const areasData = responseAreas.data.d.results.map(item => item.Area);
+      const uniqueAreas = [...new Set(areasData)].filter(area => area);
       setAreas(uniqueAreas);
-      setLastUpdated(new Date().toLocaleString()); // Update last updated time
+      setLastUpdated(new Date().toLocaleString()); 
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false); 
     }
   };
 
@@ -175,42 +162,42 @@ useEffect(() => {
         }
       );
 
-      console.log(`Orders for area ${area}:`, responseOrders.data);
+      
 
       const ordersOfArea = responseOrders.data.d.results;
       setOrders(ordersOfArea);
 
       if (ordersOfArea.length > 0) {
-        const uniqueOrders = new Set(
-          ordersOfArea.map((order) => order.OrderNumber)
-        );
+        const uniqueOrders = new Set(ordersOfArea.map(order => order.OrderNumber));
         setUniqueOrderCount(uniqueOrders.size);
 
-        const startedOrders = ordersOfArea.filter(
-          (order) => order.Iniciado === true
-        );
-        const waitingOrders = ordersOfArea.filter((order) => !order.Iniciado);
+        const startedOrders = ordersOfArea.filter(order => order.Iniciado === true);
+        const waitingOrders = ordersOfArea.filter(order => !order.Iniciado);
 
         setStartedOrderCount(startedOrders.length);
         setWaitingOrderCount(waitingOrders.length);
 
-        setGenomTitle(
-          ordersOfArea[0].Centro === "SG00" ? "Genom" : ordersOfArea[0].Centro
-        );
+        setGenomTitle(ordersOfArea[0].Centro === "SG00" ? "Genom" : ordersOfArea[0].Centro);
         setAreaTitle(ordersOfArea[0].Area);
       }
-      setLastUpdated(new Date().toLocaleString()); // Update last updated time
+      setLastUpdated(new Date().toLocaleString()); 
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false); 
     }
   };
 
+  const handleToggleAutoScroll = () => {
+    setAutoScrollEnabled(!autoScrollEnabled);
+  };
+  
+
   return (
-    <div ref={scrollContainerRef} // Adicione a referência ao elemento de contêiner
-    className={`flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100`}
-  >
+    <div
+      ref={scrollContainerRef} // Adicione a referência ao elemento de contêiner
+      className={`flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100`}
+    >
       <Header
         uniqueOrderCount={uniqueOrderCount}
         startedOrderCount={startedOrderCount}
@@ -224,6 +211,9 @@ useEffect(() => {
         lastUpdated={lastUpdated} // Pass the last updated time to Header
         loading={loading} // Pass the loading state to Header
         scrollContainerRef={scrollContainerRef} // Pass the scroll container reference
+        showAllColumns={showAllColumns} // Passa o estado para o Header
+        setShowAllColumns={setShowAllColumns}
+  onToggleAutoScroll={handleToggleAutoScroll}  // Passa a função de toggle para o Header
       />
 
       <Sidebar
@@ -245,11 +235,12 @@ useEffect(() => {
         </header>
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
-          <div className="flex space-x-4 min-w-max">
+        <div className="flex space-x-4 min-w-max">
             {fixedProcessOrder.map((processo, index) => {
-              const ordersOfProcess = orders.filter(
-                (order) => order.Processo === processo
-              );
+              const ordersOfProcess = orders.filter(order => order.Processo === processo);
+              if (!showAllColumns && ordersOfProcess.length === 0) {
+                return null; // Não renderiza colunas vazias se showAllColumns for false
+              }
               return (
                 <Column
                   key={index}
