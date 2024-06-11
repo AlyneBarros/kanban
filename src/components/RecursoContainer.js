@@ -5,7 +5,7 @@ import "./RecursoContainer.css"
 const RecursoContainer = ({ recurso, orders, cardWidth }) => {
   const [isOpen, setIsOpen] = useState(true);
   const containerRef = useRef(null);
-  const [autoScrollVerticalEnabled, setAutoScrollVerticalEnabled] = useState(false);
+ 
 
 
   const toggleOpen = () => {

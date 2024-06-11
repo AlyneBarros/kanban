@@ -19,6 +19,7 @@
  
  .home-list::-webkit-scrollbar-track {
     background-color:  hsla(0, 0%, 0%, 0); /* Cor do track da scrollbar (gray-100) */
+    
  }
 
 

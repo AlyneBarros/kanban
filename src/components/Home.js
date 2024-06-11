@@ -13,8 +13,8 @@ const password = "Uqfn@2020@#";
 
 const fixedProcessOrder = [
   "PESAGEM",
-  "GRANULAÇAO",
-  "COMPRESSAO",
+  "GRANULACAO",
+  "COMPRESSÃO",
   "DRAGEADORA",
   "EQUALIZACAO",
   "ESCOLHA",
@@ -46,6 +46,8 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const scrollContainerRef = useRef(null);
   const [showAllColumns, setShowAllColumns] = useState(true); // Novo estado para controlar a exibição das colunas
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+
 
   useEffect(() => {
     fetchData();
@@ -191,7 +193,9 @@ function Home() {
   const handleToggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
   };
-  
+  const handleToggleAutoRefresh = () => {
+    setAutoRefreshEnabled(!autoRefreshEnabled);
+  };
 
   return (
     <div
@@ -214,7 +218,9 @@ function Home() {
         showAllColumns={showAllColumns} // Passa o estado para o Header
         setShowAllColumns={setShowAllColumns}
   onToggleAutoScroll={handleToggleAutoScroll}  // Passa a função de toggle para o Header
-      />
+  autoRefreshEnabled={autoRefreshEnabled}
+  onToggleAutoRefresh={handleToggleAutoRefresh}
+     />
 
       <Sidebar
         isSideBarOpen={isSideBarOpen}
@@ -239,7 +245,7 @@ function Home() {
             {fixedProcessOrder.map((processo, index) => {
               const ordersOfProcess = orders.filter(order => order.Processo === processo);
               if (!showAllColumns && ordersOfProcess.length === 0) {
-                return null; // Não renderiza colunas vazias se showAllColumns for false
+                return null; 
               }
               return (
                 <Column
@@ -249,6 +255,7 @@ function Home() {
                   cardWidth={cardWidth}
                   columnWidth={columnWidth}
                   containerHeight={containerHeight}
+                  showAllColumns={showAllColumns}
                 />
               );
             })}

@@ -10,7 +10,6 @@ import { FaUserCircle } from "react-icons/fa";
 import { MdDarkMode, MdOutlineLightMode } from "react-icons/md";
 import { RxUpdate } from "react-icons/rx";
 
-
 function Header({
   uniqueOrderCount,
   startedOrderCount,
@@ -23,12 +22,12 @@ function Header({
   onRefresh,
   lastUpdated,
   loading,
-  isProcessing,
   scrollContainerRef,
   showAllColumns,
-  setShowAllColumns, // Recebe o setter
-  onToggleAutoScroll // Remove default value here
-
+  setShowAllColumns,
+  onToggleAutoScroll,
+  autoRefreshEnabled,
+  onToggleAutoRefresh,
 }) {
   const navigate = useNavigate();
   const currentDate = new Date();
@@ -40,16 +39,19 @@ function Header({
     navigate("/");
   };
 
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const handleToggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark");
+  };
+
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState(5);
-  const [scrollInterval, setScrollInterval] = useState(null);
+  const [scrollDirection, setScrollDirection] = useState(1);
 
   const [colorTheme, setTheme] = useDarkMode();
-  const [darkSide, setDarkSide] = useState(
-    colorTheme === "light" ? true : false
-  );
-
-  const [viewEmptyColumns, setViewEmptyColumns] = useState(false); // Estado para controlar a visualização de colunas vazias
+  const [darkSide, setDarkSide] = useState(colorTheme === "light" ? true : false);
 
   const toggleDarkMode = (checked) => {
     setTheme(colorTheme);
@@ -58,30 +60,60 @@ function Header({
 
   const toggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
+    onToggleAutoScroll(!autoScrollEnabled); 
   };
-
   const handleSetScrollSpeed = (speed) => {
-    setScrollSpeed(speed);
+    setScrollSpeed(parseInt(speed, 10)); 
   };
+  
 
   const handleChangeSizes = (cardWidth, columnWidth, containerHeight) => {
     setCustomSizes(cardWidth, columnWidth, containerHeight);
   };
 
   useEffect(() => {
-    let intervalId;
     if (autoScrollEnabled) {
-      intervalId = setInterval(scrollContainerHorizontal, 1000 / scrollSpeed);
+      const container = scrollContainerRef.current;
+      let scrollDirection = 1;
+  
+      const autoScroll = () => {
+        if (container) {
+          container.scrollLeft += scrollSpeed * scrollDirection;
+          if (container.scrollLeft >= container.scrollWidth - container.clientWidth || container.scrollLeft <= 0) {
+            scrollDirection *= -1;
+          }
+          requestAnimationFrame(autoScroll);
+        }
+      };
+  
+      const animationFrameId = requestAnimationFrame(autoScroll);
+  
+      return () => cancelAnimationFrame(animationFrameId);
     }
-    return () => clearInterval(intervalId);
   }, [autoScrollEnabled, scrollSpeed]);
+  
 
   const scrollContainerHorizontal = () => {
-    const container = document.getElementById("scroll-container");
+    const container = scrollContainerRef.current; 
     if (container) {
-      container.scrollLeft += 5; // Ajuste a quantidade de rolagem conforme necessário
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      let newScrollLeft = container.scrollLeft + 5 * scrollDirection;
+      if (newScrollLeft >= maxScrollLeft || newScrollLeft <= 0) {
+        setScrollDirection(scrollDirection * -1);
+        newScrollLeft = Math.min(maxScrollLeft, Math.max(newScrollLeft, 0));
+      }
+      container.scrollLeft = newScrollLeft;
     }
   };
+  useEffect(() => {
+    let intervalId;
+    if (autoRefreshEnabled) {
+      intervalId = setInterval(onRefresh, 30000); // Atualiza a cada 30 segundos
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [autoRefreshEnabled, onRefresh]);
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -101,8 +133,9 @@ function Header({
 
           <div className="flex justify-center items-center space-x-2">
             <p className=" text-lg text-gray-700 dark:text-gray-300">
-              Ultima atualização:
+              Última atualização:
             </p>
+            
             <div className="flex items-start flex-col">
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Data: {datePart}
@@ -112,26 +145,26 @@ function Header({
               </p>
             </div>
           </div>
-
+         
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
-              <span className="text-sl text-gray-600 dark:text-gray-300 ml-1">
+              <span className="text-sm text-gray-600 dark:text-gray-300">
                 {uniqueOrderCount} ordens
               </span>
             </div>
             <div className="flex items-center">
-              <span className="text-sl text-green-500 ml-1">
+              <span className="text-sm text-green-500">
                 {startedOrderCount} Operações iniciadas
               </span>
             </div>
             <div className="flex items-center">
-              <span className="text-sl text-orange-500 ml-1">
+              <span className="text-sm text-orange-500">
                 {waitingOrderCount} Operações em espera
               </span>
             </div>
           </div>
           <div className="flex space-x-4 items-center">
-            <button onClick={onRefresh} className="  h-8 w-8 mr-4">
+            <button onClick={onRefresh} className="h-8 w-8 mr-4">
               <RxUpdate
                 className={`h-8 w-8 mr-1 ${loading ? "animate-spin" : ""}`}
               />
@@ -155,10 +188,10 @@ function Header({
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="absolute right-0 mt-2  min-h-screen  w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="absolute right-0 mt-2 min-h-screen w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="p-5 space-y-2">
                     <div className="flex justify-center space-x-4 items-center">
-                      <button
+                    <button
                         onClick={handleLogout}
                         className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       >
@@ -192,25 +225,25 @@ function Header({
                         </Switch>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3  ">
-                        <Switch
-                          checked={showAllColumns}
-                          onChange={setShowAllColumns}
+                    <div className="flex items-center space-x-3">
+                      <Switch
+                        checked={showAllColumns}
+                        onChange={setShowAllColumns}
+                        className={`${
+                          showAllColumns ? "bg-gray-500" : "bg-blue-600"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Show All Columns</span>
+                        <span
                           className={`${
-                            showAllColumns ? "bg-gray-500" : "bg-gray-800"
-                          } relative inline-flex h-6 w-11 items-center rounded-full`}
-                        >
-                          <span className="sr-only">Show All Columns</span>
-                          <span
-                            className={`${
-                              showAllColumns ? "translate-x-6" : "translate-x-1"
-                            } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                          />
-                        </Switch >
-                        <span className="text-gray-900 dark:text-gray-100 ">
-                          Mostrar todas colunas
-                        </span>
-                      </div>
+                            showAllColumns ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                        />
+                      </Switch>
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Mostrar todas colunas
+                      </span>
+                    </div>
                     <div className="p-2 space-y-2">
                       <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
                         Tamanho das Colunas:
@@ -227,7 +260,7 @@ function Header({
                         onClick={() =>
                           handleChangeSizes("350px", "350px", "89vh")
                         }
-                        className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-900-300 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       >
                         Média (Padrão)
                       </button>
@@ -235,7 +268,7 @@ function Header({
                         onClick={() =>
                           handleChangeSizes("400px", "400px", "90vh")
                         }
-                        className="w-full text-left px-4 py-2 text-sm text-gray-900-300 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       >
                         Grande
                       </button>
@@ -247,29 +280,67 @@ function Header({
                       >
                         Extra Grande
                       </button>
-
-                      
                     </div>
-                    <div className="flex items-center space-x-4">
-                    <Switch
-  checked={autoScrollEnabled}
-  onChange={onToggleAutoScroll}
-  className={`${
-    autoScrollEnabled ? "bg-gray-500" : "bg-gray-800"
-  } relative inline-flex h-6 w-11 items-center rounded-full`}
->
-  <span className="sr-only">Toggle auto scroll</span>
-  <span
-    className={`${
-      autoScrollEnabled ? "translate-x-6" : "translate-x-1"
-    } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-  />
-</Switch>
-<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-  {autoScrollEnabled ? "Auto Scroll Enabled" : "Auto Scroll Disabled"}
-</span>
-
-</div>
+                    
+                    <div className="flex items-center space-x-4 p-2 space-y-2">
+                        <Switch
+                        checked={autoRefreshEnabled}
+                        onChange={onToggleAutoRefresh}
+                        className={`${
+                          autoRefreshEnabled ? "bg-gray-500" : "bg-blue-600"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Auto Refresh</span>
+                        <span
+                          className={`${
+                            autoRefreshEnabled ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                        />
+                      </Switch>
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Atualização automática
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-4 p-2 space-y-2 ">
+                      <Switch
+                        checked={autoScrollEnabled}
+                        onChange={toggleAutoScroll}
+                        className={`${
+                          autoScrollEnabled ? "bg-gray-500" : "bg-blue-600"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Auto Scroll</span>
+                        <span
+                          className={`${
+                            autoScrollEnabled ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                        />
+                      </Switch>
+                      <span className="text-gray-900 dark:text-gray-100">
+                        Rolagem automática
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <label
+                        htmlFor="scrollSpeed"
+                        className="block text-gray-700 dark:text-gray-300"
+                      >
+                        Velocidade do Scroll
+                      </label>
+                      <input
+                        type="range"
+                        id="scrollSpeed"
+                        name="scrollSpeed"
+                        min="1"
+                        max="10"
+                        value={scrollSpeed}
+                        onChange={(e) => handleSetScrollSpeed(e.target.value)}
+                        className="w-20 bg-gray-200 dark:bg-gray-600"
+                      />
+                      <span className="text-gray-900 dark:text-gray-100">
+                        {scrollSpeed}
+                      </span>
+                    </div>
                   </div>
                 </Menu.Items>
               </Transition>
@@ -282,3 +353,4 @@ function Header({
 }
 
 export default Header;
+

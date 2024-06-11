@@ -34,7 +34,7 @@ const Task = ({ order }) => {
       date.setUTCSeconds(seconds);
     }
 
-    // Ajustar manualmente o horário em 3 horas
+    
     date.setHours(date.getHours() + 3);
 
     return isNaN(date.getTime()) ? null : date;
