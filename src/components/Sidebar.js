@@ -1,4 +1,3 @@
-// Sidebar.js
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { RxDividerVertical } from "react-icons/rx";
@@ -10,13 +9,18 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
   const toggleSidebar = () => {
     setIsSideBarOpen((curr) => !curr);
   };
+
+  // Utiliza o hook useDarkMode para gerenciar o tema claro/escuro
   const [colorTheme, setTheme] = useDarkMode();
   const [darkSide, setDarkSide] = useState(colorTheme === "light" ? true : false);
 
+  // Função para alternar entre o tema claro e escuro
   const toggleDarkMode = (checked) => {
     setTheme(colorTheme);
     setDarkSide(checked);
   };
+
+  // Classes condicionais para o sidebar aberto
   const sidebarOpenClasses = classNames(
     "min-w-[261px]",
     "bg-white",
@@ -35,6 +39,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
     }
   );
 
+  // Classes condicionais para o sidebar fechado
   const sidebarClosedClasses = classNames(
     "rounded",
     "w-[56px]",
@@ -54,6 +59,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
     "dark:hover:bg-gray-700"
   );
 
+  // Classes condicionais para a seta de expandir/recolher
   const arrowClasses = classNames(
     "transform",
     "transition-transform",
@@ -64,6 +70,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
     }
   );
 
+  // Função para aplicar classes condicionais aos itens de área
   const areaItemClasses = (isActive) =>
     classNames(
       "flex",
@@ -93,6 +100,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
     <div className={`min-h-screen ${isSideBarOpen ? 'w-72' : 'w-16'} duration-500`}>
       <div className={sidebarOpenClasses} aria-expanded={isSideBarOpen} role="navigation">
         <div className="flex flex-col h-full w-full p-4">
+          {/* Botão de recolher/expadir o sidebar */}
           <div
             className="flex items-center justify-end cursor-pointer space-x-3 w-full  py-2 rounded-r-full"
             onClick={toggleSidebar}
@@ -102,6 +110,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
           </div>
 
           <div className="flex-1">
+            {/* Lista de áreas */}
             <p className="uppercase tracking-[2.4px] text-gray-400 font-bold text-[12px] ml-[6px]">
               Todas as Áreas ({areas.length})
             </p>
@@ -121,12 +130,12 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
           </div>
         </div>
       </div>
+
+      {/* Ícone para abrir o sidebar quando está fechado */}
       {!isSideBarOpen && (
         <div className={sidebarClosedClasses} onClick={toggleSidebar} aria-label="Open Sidebar">
-       <RxDividerVertical size={500} className={` ${darkSide ? 'text-white' : 'text-gray-800'}`}  />
-
-      </div>
-      
+          <RxDividerVertical size={500} className={` ${darkSide ? 'text-white' : 'text-gray-800'}`}  />
+        </div>
       )}
     </div>
   );

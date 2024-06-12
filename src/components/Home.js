@@ -1,4 +1,4 @@
-// Home.js
+// Importação de dependências
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Column from "./Column";
@@ -6,13 +6,15 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import "./RecursoContainer.css";
 
-const serviceUrl =
-  "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
+// Definição da URL do serviço e credenciais
+const serviceUrl = "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
 const username = "usr_webapp";
 const password = "Uqfn@2020@#";
 
+// Definição das etapas fixas do processo
 const fixedProcessOrder = [
   "PESAGEM",
+  "ACONDICIONAR",
   "GRANULACAO",
   "COMPRESSÃO",
   "DRAGEADORA",
@@ -23,6 +25,7 @@ const fixedProcessOrder = [
 ];
 
 function Home() {
+  // Definição dos estados do componente
   const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
   const [orders, setOrders] = useState([]);
@@ -45,28 +48,26 @@ function Home() {
   const [lastUpdated, setLastUpdated] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollContainerRef = useRef(null);
-  const [showAllColumns, setShowAllColumns] = useState(true); // Novo estado para controlar a exibição das colunas
+  const [showAllColumns, setShowAllColumns] = useState(true);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
 
-
+  // Hook para buscar dados ao montar o componente
   useEffect(() => {
     fetchData();
-
-    const intervalId = setInterval(fetchData, 300000); // 300000 ms = 5 minutes
-    return () => clearInterval(intervalId); // Clear interval on component unmount
+    const intervalId = setInterval(fetchData, 300000); // 300000 ms = 5 minutos
+    return () => clearInterval(intervalId); // Limpa o intervalo ao desmontar o componente
   }, []);
 
+  // Hook para lidar com hash na URL para navegação inicial
   useEffect(() => {
     const hash = window.location.hash.substr(1); // Obtém o hash da URL
     if (hash) {
-      // Divide a hash em partes separadas pelo caractere "&"
-      const [centro, area] = hash.split("&");
-
-      // Lógica para lidar com a navegação inicial com base no centro e na área
+      const [centro, area] = hash.split("&"); // Divide o hash em partes
       handleAreaClick(area, centro);
     }
   }, []);
 
+  // Hook para habilitar/desabilitar rolagem automática
   useEffect(() => {
     if (autoScrollEnabled) {
       const container = scrollContainerRef.current;
@@ -80,9 +81,10 @@ function Home() {
     }
   }, [autoScrollEnabled, scrollSpeed]);
 
+  // Função para buscar dados da API
   const fetchData = async () => {
     try {
-      setLoading(true); // Start loading
+      setLoading(true); // Inicia o estado de carregamento
       const auth = btoa(`${username}:${password}`);
 
       const responseOrders = await axios.get(
@@ -95,7 +97,6 @@ function Home() {
         }
       );
 
-   
       const ordersOfSg00 = responseOrders.data.d.results;
       setOrders(ordersOfSg00);
 
@@ -112,7 +113,6 @@ function Home() {
         setGenomTitle(ordersOfSg00[0].Centro === "SG00" ? "Genom" : ordersOfSg00[0].Centro);
         setAreaTitle(ordersOfSg00[0].Area);
       }
-       
 
       const responseAreas = await axios.get(
         `${serviceUrl}/OrdemSet?$select=Area&$filter=Centro eq 'SG00' and Area eq 'SOLIDOS'&$format=json`,
@@ -124,8 +124,6 @@ function Home() {
         }
       );
 
-      
-
       const areasData = responseAreas.data.d.results.map(item => item.Area);
       const uniqueAreas = [...new Set(areasData)].filter(area => area);
       setAreas(uniqueAreas);
@@ -133,16 +131,18 @@ function Home() {
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false); // Finaliza o estado de carregamento
     }
   };
 
+  // Função para definir tamanhos padrão dos componentes
   const handleSetDefaultSizes = () => {
     setCardWidth(defaultSizes.cardWidth);
     setColumnWidth(defaultSizes.columnWidth);
     setContainerHeight(defaultSizes.containerHeight);
   };
 
+  // Função para definir tamanhos personalizados dos componentes
   const handleSetCustomSizes = (cardWidth, columnWidth, containerHeight) => {
     setDefaultSizes({ cardWidth, columnWidth, containerHeight });
     setCardWidth(cardWidth);
@@ -150,9 +150,10 @@ function Home() {
     setContainerHeight(containerHeight);
   };
 
+  // Função para lidar com cliques nas áreas
   const handleAreaClick = async (area) => {
     try {
-      setLoading(true); // Start loading
+      setLoading(true); // Inicia o estado de carregamento
       const auth = btoa(`${username}:${password}`);
       const responseOrders = await axios.get(
         `${serviceUrl}/OrdemSet?$filter=Centro eq 'SG00' and Area eq '${area}'`,
@@ -163,8 +164,6 @@ function Home() {
           },
         }
       );
-
-      
 
       const ordersOfArea = responseOrders.data.d.results;
       setOrders(ordersOfArea);
@@ -186,21 +185,23 @@ function Home() {
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false); // Finaliza o estado de carregamento
     }
   };
 
+  // Funções para alternar estados de rolagem e atualização automáticas
   const handleToggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
   };
+
   const handleToggleAutoRefresh = () => {
     setAutoRefreshEnabled(!autoRefreshEnabled);
   };
 
   return (
     <div
-      ref={scrollContainerRef} // Adicione a referência ao elemento de contêiner
-      className={`flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100`}
+      ref={scrollContainerRef} // Adiciona a referência ao elemento de contêiner
+      className="flex h-screen overflow-hidden bg-[#f4f7fd] dark:bg-[#20212c] overflow-x-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 scrollbar-track-gray-100"
     >
       <Header
         uniqueOrderCount={uniqueOrderCount}
@@ -211,16 +212,16 @@ function Home() {
         defaultSizes={defaultSizes}
         genomTitle={genomTitle}
         areaTitle={areaTitle}
-        onRefresh={fetchData} // Pass the refresh function to Header
-        lastUpdated={lastUpdated} // Pass the last updated time to Header
-        loading={loading} // Pass the loading state to Header
-        scrollContainerRef={scrollContainerRef} // Pass the scroll container reference
+        onRefresh={fetchData} // Passa a função de atualização para Header
+        lastUpdated={lastUpdated} // Passa o tempo da última atualização para Header
+        loading={loading} // Passa o estado de carregamento para Header
+        scrollContainerRef={scrollContainerRef} // Passa a referência do contêiner de rolagem
         showAllColumns={showAllColumns} // Passa o estado para o Header
         setShowAllColumns={setShowAllColumns}
-  onToggleAutoScroll={handleToggleAutoScroll}  // Passa a função de toggle para o Header
-  autoRefreshEnabled={autoRefreshEnabled}
-  onToggleAutoRefresh={handleToggleAutoRefresh}
-     />
+        onToggleAutoScroll={handleToggleAutoScroll} // Passa a função de alternar rolagem automática para Header
+        autoRefreshEnabled={autoRefreshEnabled}
+        onToggleAutoRefresh={handleToggleAutoRefresh} // Passa a função de alternar atualização automática para Header
+      />
 
       <Sidebar
         isSideBarOpen={isSideBarOpen}
@@ -230,9 +231,7 @@ function Home() {
       />
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSideBarOpen ? "ml-[261px]" : "ml-0"
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${isSideBarOpen ? "ml-[261px]" : "ml-0"}`}
       >
         <header className="flex items-center justify-between p-4 bg-white dark:bg-[#2b2c37] shadow-md">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -241,11 +240,11 @@ function Home() {
         </header>
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
-        <div className="flex space-x-4 min-w-max">
+          <div className="flex space-x-4 min-w-max">
             {fixedProcessOrder.map((processo, index) => {
               const ordersOfProcess = orders.filter(order => order.Processo === processo);
               if (!showAllColumns && ordersOfProcess.length === 0) {
-                return null; 
+                return null;
               }
               return (
                 <Column

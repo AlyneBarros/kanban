@@ -47,11 +47,13 @@ function Header({
   };
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
-  const [scrollSpeed, setScrollSpeed] = useState(5);
+  const [scrollSpeed, setScrollSpeed] = useState(1);
   const [scrollDirection, setScrollDirection] = useState(1);
 
   const [colorTheme, setTheme] = useDarkMode();
-  const [darkSide, setDarkSide] = useState(colorTheme === "light" ? true : false);
+  const [darkSide, setDarkSide] = useState(
+    colorTheme === "light" ? true : false
+  );
 
   const toggleDarkMode = (checked) => {
     setTheme(colorTheme);
@@ -59,13 +61,14 @@ function Header({
   };
 
   const toggleAutoScroll = () => {
-    setAutoScrollEnabled(!autoScrollEnabled);
-    onToggleAutoScroll(!autoScrollEnabled); 
+    const newValue = !autoScrollEnabled;
+    setAutoScrollEnabled(newValue);
+    onToggleAutoScroll(newValue);
   };
+
   const handleSetScrollSpeed = (speed) => {
-    setScrollSpeed(parseInt(speed, 10)); 
+    setScrollSpeed(parseInt(speed, 10));
   };
-  
 
   const handleChangeSizes = (cardWidth, columnWidth, containerHeight) => {
     setCustomSizes(cardWidth, columnWidth, containerHeight);
@@ -74,37 +77,67 @@ function Header({
   useEffect(() => {
     if (autoScrollEnabled) {
       const container = scrollContainerRef.current;
-      let scrollDirection = 1;
-  
+      let animationFrameId;
+
       const autoScroll = () => {
         if (container) {
           container.scrollLeft += scrollSpeed * scrollDirection;
-          if (container.scrollLeft >= container.scrollWidth - container.clientWidth || container.scrollLeft <= 0) {
-            scrollDirection *= -1;
+
+          // Verifica se a rolagem atingiu o final da área de rolagem
+          const reachedEnd =
+            container.scrollLeft >=
+            container.scrollWidth - container.clientWidth;
+          const reachedStart = container.scrollLeft <= 0;
+
+          if (reachedEnd || reachedStart) {
+            // Se atingiu o final, inverte a direção da rolagem
+            setScrollDirection(-scrollDirection);
           }
-          requestAnimationFrame(autoScroll);
+
+          animationFrameId = requestAnimationFrame(autoScroll);
         }
       };
-  
-      const animationFrameId = requestAnimationFrame(autoScroll);
-  
+
+      autoScroll(); // Inicia a rolagem automática
       return () => cancelAnimationFrame(animationFrameId);
     }
-  }, [autoScrollEnabled, scrollSpeed]);
-  
+  }, [autoScrollEnabled, scrollSpeed, scrollDirection, scrollContainerRef]);
 
-  const scrollContainerHorizontal = () => {
-    const container = scrollContainerRef.current; 
-    if (container) {
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      let newScrollLeft = container.scrollLeft + 5 * scrollDirection;
-      if (newScrollLeft >= maxScrollLeft || newScrollLeft <= 0) {
-        setScrollDirection(scrollDirection * -1);
-        newScrollLeft = Math.min(maxScrollLeft, Math.max(newScrollLeft, 0));
-      }
-      container.scrollLeft = newScrollLeft;
+  const [autoScrollVerticalEnabled, setAutoScrollVerticalEnabled] = useState(false);
+
+  const toggleAutoScrollVertical = () => {
+    const newValue = !autoScrollVerticalEnabled;
+    setAutoScrollVerticalEnabled(newValue);
+  
+    // Adicione a manipulação da rolagem automática vertical aqui
+    if (newValue) {
+      // Código para começar a rolagem automática vertical
+    } else {
+      // Código para parar a rolagem automática vertical
     }
   };
+  
+  useEffect(() => {
+    // Adicione a manipulação da rolagem automática vertical aqui
+    if (autoScrollVerticalEnabled) {
+      // Código para começar a rolagem automática vertical
+    } else {
+      // Código para parar a rolagem automática vertical
+    }
+  }, [autoScrollVerticalEnabled]);
+    useEffect(() => {
+    const handleAutoScrollVertical = () => {
+      const container = scrollContainerRef.current;
+      if (container && autoScrollVerticalEnabled) {
+        container.scrollTop += 1; // ou qualquer outra lógica de rolagem vertical
+      }
+    };
+
+    const intervalId = setInterval(handleAutoScrollVertical, 1000); // ajuste o intervalo conforme necessário
+
+    return () => clearInterval(intervalId);
+  }, [autoScrollVerticalEnabled, scrollContainerRef]);
+  
   useEffect(() => {
     let intervalId;
     if (autoRefreshEnabled) {
@@ -135,7 +168,7 @@ function Header({
             <p className=" text-lg text-gray-700 dark:text-gray-300">
               Última atualização:
             </p>
-            
+
             <div className="flex items-start flex-col">
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 Data: {datePart}
@@ -145,7 +178,7 @@ function Header({
               </p>
             </div>
           </div>
-         
+
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
               <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -191,7 +224,7 @@ function Header({
                 <Menu.Items className="absolute right-0 mt-2 min-h-screen w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="p-5 space-y-2">
                     <div className="flex justify-center space-x-4 items-center">
-                    <button
+                      <button
                         onClick={handleLogout}
                         className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       >
@@ -225,25 +258,7 @@ function Header({
                         </Switch>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        checked={showAllColumns}
-                        onChange={setShowAllColumns}
-                        className={`${
-                          showAllColumns ? "bg-gray-500" : "bg-blue-600"
-                        } relative inline-flex h-6 w-11 items-center rounded-full`}
-                      >
-                        <span className="sr-only">Show All Columns</span>
-                        <span
-                          className={`${
-                            showAllColumns ? "translate-x-6" : "translate-x-1"
-                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                        />
-                      </Switch>
-                      <span className="text-gray-900 dark:text-gray-100">
-                        Mostrar todas colunas
-                      </span>
-                    </div>
+                 
                     <div className="p-2 space-y-2">
                       <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
                         Tamanho das Colunas:
@@ -281,65 +296,99 @@ function Header({
                         Extra Grande
                       </button>
                     </div>
-                    
-                    <div className="flex items-center space-x-4 p-2 space-y-2">
-                        <Switch
-                        checked={autoRefreshEnabled}
-                        onChange={onToggleAutoRefresh}
-                        className={`${
-                          autoRefreshEnabled ? "bg-gray-500" : "bg-blue-600"
-                        } relative inline-flex h-6 w-11 items-center rounded-full`}
-                      >
-                        <span className="sr-only">Auto Refresh</span>
-                        <span
-                          className={`${
-                            autoRefreshEnabled ? "translate-x-6" : "translate-x-1"
-                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                        />
-                      </Switch>
-                      <span className="text-gray-900 dark:text-gray-100">
-                        Atualização automática
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4 p-2 space-y-2 ">
-                      <Switch
-                        checked={autoScrollEnabled}
-                        onChange={toggleAutoScroll}
-                        className={`${
-                          autoScrollEnabled ? "bg-gray-500" : "bg-blue-600"
-                        } relative inline-flex h-6 w-11 items-center rounded-full`}
-                      >
-                        <span className="sr-only">Auto Scroll</span>
-                        <span
-                          className={`${
-                            autoScrollEnabled ? "translate-x-6" : "translate-x-1"
-                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                        />
-                      </Switch>
-                      <span className="text-gray-900 dark:text-gray-100">
-                        Rolagem automática
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <label
-                        htmlFor="scrollSpeed"
-                        className="block text-gray-700 dark:text-gray-300"
-                      >
-                        Velocidade do Scroll
-                      </label>
-                      <input
-                        type="range"
-                        id="scrollSpeed"
-                        name="scrollSpeed"
-                        min="1"
-                        max="10"
-                        value={scrollSpeed}
-                        onChange={(e) => handleSetScrollSpeed(e.target.value)}
-                        className="w-20 bg-gray-200 dark:bg-gray-600"
-                      />
-                      <span className="text-gray-900 dark:text-gray-100">
-                        {scrollSpeed}
-                      </span>
+                    {/* <div className="flex items-center space-x-4 p-2 space-y-2">
+                    <Switch
+                            checked={autoScrollVerticalEnabled}
+                            onChange={toggleAutoScrollVertical}
+                            className={`${
+                              autoScrollVerticalEnabled
+                                ? "bg-gray-500"
+                                : "bg-blue-600"
+                            } relative inline-flex h-6 w-11 items-center rounded-full`}
+                          >
+                            <span className="sr-only">Auto Scroll Vertical</span>
+                            <span
+                              className={`${
+                                autoScrollVerticalEnabled
+                                  ? "translate-x-6"
+                                  : "translate-x-1"
+                              } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                            />
+                          </Switch>
+                          <span className="text-gray-900 dark:text-gray-100">
+                            Rolagem automática vertical
+                          </span>
+                      </div> */}
+                   <div className="flex items-center space-x-3 ">
+          <Switch
+            checked={showAllColumns}
+            onChange={setShowAllColumns}
+            className={`${
+              showAllColumns ? "bg-blue-600" : "bg-gray-400"
+            } relative inline-flex h-6 w-11 items-center rounded-full`}
+          >
+            <span className="sr-only">Show All Columns</span>
+            <span
+              className={`${
+                showAllColumns ? "translate-x-6" : "translate-x-1"
+              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+            />
+          </Switch>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mostrar todas as colunas</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Switch
+            checked={autoRefreshEnabled}
+            onChange={onToggleAutoRefresh}
+            className={`${
+              autoRefreshEnabled ? "bg-blue-600" : "bg-gray-400"
+            } relative inline-flex h-6 w-11 items-center rounded-full`}
+          >
+            <span className="sr-only">Auto Refresh</span>
+            <span
+              className={`${
+                autoRefreshEnabled ? "translate-x-6" : "translate-x-1"
+              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+            />
+          </Switch>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Atualização automática</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Switch
+            checked={autoScrollEnabled}
+            onChange={toggleAutoScroll}
+            className={`${
+              autoScrollEnabled ? "bg-blue-600" : "bg-gray-400"
+            } relative inline-flex h-6 w-11 items-center rounded-full`}
+          >
+            <span className="sr-only">Auto Scroll</span>
+            <span
+              className={`${
+                autoScrollEnabled ? "translate-x-6" : "translate-x-1"
+              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+            />
+          </Switch>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Rolagem automática</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <label
+            htmlFor="scrollSpeed"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            Velocidade
+          </label>
+          <input
+            type="range"
+            id="scrollSpeed"
+            name="scrollSpeed"
+            min="1"
+            max="10"
+            value={scrollSpeed}
+            onChange={(e) => handleSetScrollSpeed(e.target.value)}
+            className="w-20 bg-gray-200 dark:bg-gray-600"
+          />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{scrollSpeed}</span>
+        
                     </div>
                   </div>
                 </Menu.Items>
@@ -353,4 +402,3 @@ function Header({
 }
 
 export default Header;
-
