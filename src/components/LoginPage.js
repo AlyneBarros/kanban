@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import { MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
 import ErrorModal from './ErrorModal';
@@ -10,31 +10,23 @@ function Login({ setAuthenticated }) {
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Limpar estado de autenticação ao carregar a página de login
-    setAuthenticated(false);
-    Cookies.remove('username');
-  }, [setAuthenticated]);
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://launchpad.uniaoquimica.com.br/LaunchpadAPI/Login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "Usuario": username,
-          "Senha": password
-        }),
-      });
+      // Extraia 'centro' e 'area' de alguma fonte, como um formulário
+      const centro = 'SG00'; // Exemplo: centro vem do formulário
+      const area = 'SOLIDOS'; // Exemplo: área vem do formulário
+
+      // Simula uma resposta bem-sucedida do servidor
+      const response = { ok: true }; // Isso é apenas um exemplo simulado
 
       if (response.ok) {
         setAuthenticated(true);
         Cookies.set('username', username);
-        navigate('/Home');
+
+        // Redirecionar para a página inicial com a URL contendo o centro e a área
+        navigate(`/home#${centro}/${area}`);
       } else {
         setErrorModalOpen(true);
       }

@@ -43,6 +43,8 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
     }
   }, [autoScrollEnabled]);
 
+  const totalRecursos = Object.keys(groupedOrdersByRecurso).length;
+
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4" style={{ width: columnWidth, maxHeight: containerHeight }} ref={columnContainerRef}>
       <ColumnHeader descProcesso={descProcesso} totalOrders={orders.length} />
@@ -60,6 +62,7 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
                 autoScrollEnabled={autoScrollEnabled}
                 toggleAutoScroll={toggleAutoScroll}
                 scrollContainerRef={columnContainerRef} // Passando a referência do contêiner de rolagem
+                totalRecursos={totalRecursos} // Passa a contagem total de recursos
               />
             ))}
           </div>

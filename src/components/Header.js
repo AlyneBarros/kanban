@@ -103,20 +103,21 @@ function Header({
     }
   }, [autoScrollEnabled, scrollSpeed, scrollDirection, scrollContainerRef]);
 
-  const [autoScrollVerticalEnabled, setAutoScrollVerticalEnabled] = useState(false);
+  const [autoScrollVerticalEnabled, setAutoScrollVerticalEnabled] =
+    useState(false);
 
   const toggleAutoScrollVertical = () => {
     const newValue = !autoScrollVerticalEnabled;
     setAutoScrollVerticalEnabled(newValue);
-  
-    // Adicione a manipulação da rolagem automática vertical aqui
+
+    // Adiciona a manipulação da rolagem automática vertical aqui
     if (newValue) {
       // Código para começar a rolagem automática vertical
     } else {
       // Código para parar a rolagem automática vertical
     }
   };
-  
+
   useEffect(() => {
     // Adicione a manipulação da rolagem automática vertical aqui
     if (autoScrollVerticalEnabled) {
@@ -125,19 +126,19 @@ function Header({
       // Código para parar a rolagem automática vertical
     }
   }, [autoScrollVerticalEnabled]);
-    useEffect(() => {
+  useEffect(() => {
     const handleAutoScrollVertical = () => {
       const container = scrollContainerRef.current;
       if (container && autoScrollVerticalEnabled) {
-        container.scrollTop += 1; // ou qualquer outra lógica de rolagem vertical
+        container.scrollTop += 1;
       }
     };
 
-    const intervalId = setInterval(handleAutoScrollVertical, 1000); // ajuste o intervalo conforme necessário
+    const intervalId = setInterval(handleAutoScrollVertical, 1000);
 
     return () => clearInterval(intervalId);
   }, [autoScrollVerticalEnabled, scrollContainerRef]);
-  
+
   useEffect(() => {
     let intervalId;
     if (autoRefreshEnabled) {
@@ -222,44 +223,21 @@ function Header({
                 leaveTo="transform opacity-0 scale-95"
               >
                 <Menu.Items className="absolute right-0 mt-2 min-h-screen w-72 origin-top-right bg-white dark:bg-[#2b2c37] divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="p-5 space-y-2">
-                    <div className="flex justify-center space-x-4 items-center">
+                  <div className="p-5 space-y-4">
+                    <div className="flex justify-between items-center">
                       <button
                         onClick={handleLogout}
-                        className="text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
+                        className="flex items-center text-sm text-gray-900 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-300"
                       >
                         <FaUserCircle
                           className={`h-8 w-8 ${
                             darkSide ? "text-white" : "text-gray-600"
                           }`}
                         />
-                        Logout
+                        <span className="ml-2">Logout</span>
                       </button>
-                      <div className="flex items-center">
-                        <Switch
-                          checked={darkSide}
-                          onChange={toggleDarkMode}
-                          className={`${
-                            darkSide ? "bg-gray-500" : "bg-gray-800"
-                          } relative inline-flex h-6 w-11 items-center rounded-full`}
-                        >
-                          <span className="sr-only">Toggle Dark Mode</span>
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full transition ${
-                              darkSide ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          >
-                            {darkSide ? (
-                              <MdOutlineLightMode className="text-white" />
-                            ) : (
-                              <MdDarkMode className="text-yellow-500" />
-                            )}
-                          </span>
-                        </Switch>
-                      </div>
                     </div>
-                 
-                    <div className="p-2 space-y-2">
+                    <div className="space-y-2">
                       <div className="text-xl text-gray-600 dark:text-gray-400 font-semibold">
                         Tamanho das Colunas:
                       </div>
@@ -296,100 +274,112 @@ function Header({
                         Extra Grande
                       </button>
                     </div>
-                    {/* <div className="flex items-center space-x-4 p-2 space-y-2">
-                    <Switch
-                            checked={autoScrollVerticalEnabled}
-                            onChange={toggleAutoScrollVertical}
-                            className={`${
-                              autoScrollVerticalEnabled
-                                ? "bg-gray-500"
-                                : "bg-blue-600"
-                            } relative inline-flex h-6 w-11 items-center rounded-full`}
-                          >
-                            <span className="sr-only">Auto Scroll Vertical</span>
-                            <span
-                              className={`${
-                                autoScrollVerticalEnabled
-                                  ? "translate-x-6"
-                                  : "translate-x-1"
-                              } inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                            />
-                          </Switch>
-                          <span className="text-gray-900 dark:text-gray-100">
-                            Rolagem automática vertical
-                          </span>
-                      </div> */}
-                   <div className="flex items-center space-x-3 ">
-          <Switch
-            checked={showAllColumns}
-            onChange={setShowAllColumns}
-            className={`${
-              showAllColumns ? "bg-blue-600" : "bg-gray-400"
-            } relative inline-flex h-6 w-11 items-center rounded-full`}
-          >
-            <span className="sr-only">Show All Columns</span>
-            <span
-              className={`${
-                showAllColumns ? "translate-x-6" : "translate-x-1"
-              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
-            />
-          </Switch>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Mostrar todas as colunas</span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Switch
-            checked={autoRefreshEnabled}
-            onChange={onToggleAutoRefresh}
-            className={`${
-              autoRefreshEnabled ? "bg-blue-600" : "bg-gray-400"
-            } relative inline-flex h-6 w-11 items-center rounded-full`}
-          >
-            <span className="sr-only">Auto Refresh</span>
-            <span
-              className={`${
-                autoRefreshEnabled ? "translate-x-6" : "translate-x-1"
-              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
-            />
-          </Switch>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Atualização automática</span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Switch
-            checked={autoScrollEnabled}
-            onChange={toggleAutoScroll}
-            className={`${
-              autoScrollEnabled ? "bg-blue-600" : "bg-gray-400"
-            } relative inline-flex h-6 w-11 items-center rounded-full`}
-          >
-            <span className="sr-only">Auto Scroll</span>
-            <span
-              className={`${
-                autoScrollEnabled ? "translate-x-6" : "translate-x-1"
-              } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
-            />
-          </Switch>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Rolagem automática</span>
-        </div>
-        <div className="flex items-center space-x-3">
-          <label
-            htmlFor="scrollSpeed"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Velocidade
-          </label>
-          <input
-            type="range"
-            id="scrollSpeed"
-            name="scrollSpeed"
-            min="1"
-            max="10"
-            value={scrollSpeed}
-            onChange={(e) => handleSetScrollSpeed(e.target.value)}
-            className="w-20 bg-gray-200 dark:bg-gray-600"
-          />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{scrollSpeed}</span>
-        
+                    <div className="flex items-center space-x-3 ">
+                      <Switch
+                        checked={showAllColumns}
+                        onChange={setShowAllColumns}
+                        className={`${
+                          showAllColumns ? "bg-blue-600" : "bg-gray-400"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Show All Columns</span>
+                        <span
+                          className={`${
+                            showAllColumns ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+                        />
+                      </Switch>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Mostrar todas as colunas
+                      </span>
                     </div>
+                    <div className="flex items-center space-x-3">
+                      <Switch
+                        checked={autoRefreshEnabled}
+                        onChange={onToggleAutoRefresh}
+                        className={`${
+                          autoRefreshEnabled ? "bg-blue-600" : "bg-gray-400"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Auto Refresh</span>
+                        <span
+                          className={`${
+                            autoRefreshEnabled
+                              ? "translate-x-6"
+                              : "translate-x-1"
+                          } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+                        />
+                      </Switch>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Atualização automática
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Switch
+                        checked={autoScrollEnabled}
+                        onChange={toggleAutoScroll}
+                        className={`${
+                          autoScrollEnabled ? "bg-blue-600" : "bg-gray-400"
+                        } relative inline-flex h-6 w-11 items-center rounded-full`}
+                      >
+                        <span className="sr-only">Auto Scroll</span>
+                        <span
+                          className={`${
+                            autoScrollEnabled
+                              ? "translate-x-6"
+                              : "translate-x-1"
+                          } inline-block h-5 w-5 rounded-full bg-white shadow-sm transform ring-0 transition ease-in-out duration-200`}
+                        />
+                      </Switch>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Rolagem automática
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <label
+                        htmlFor="scrollSpeed"
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      >
+                        Velocidade
+                      </label>
+                      <input
+                        type="range"
+                        id="scrollSpeed"
+                        name="scrollSpeed"
+                        min="1"
+                        max="10"
+                        value={scrollSpeed}
+                        onChange={(e) => handleSetScrollSpeed(e.target.value)}
+                        className="w-20 bg-gray-200 dark:bg-gray-600"
+                      />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {scrollSpeed}
+                      </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Switch
+                          checked={darkSide}
+                          onChange={toggleDarkMode}
+                          className={`${
+                            darkSide ? "bg-gray-500" : "bg-gray-800"
+                          } relative inline-flex h-6 w-11 items-center rounded-full`}
+                        >
+                          <span className="sr-only">Toggle Dark Mode</span>
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full transition ${
+                              darkSide ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          >
+                            {darkSide ? (
+                              <MdOutlineLightMode className="text-white" />
+                            ) : (
+                              <MdDarkMode className="text-yellow-500" />
+                            )}
+                          </span>
+                        </Switch>
+                      </div>
+                      
+                    
                   </div>
                 </Menu.Items>
               </Transition>

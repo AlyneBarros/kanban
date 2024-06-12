@@ -43,7 +43,7 @@ const Task = ({ order }) => {
   };
 
   // Calcula o tempo de produção
-  const calculateProductionTime = () => {
+  const calculateProductionTime = (formattedCheckIn) => {
     if (!(formattedCheckIn instanceof Date)) return null;
 
     const now = new Date();
@@ -57,7 +57,7 @@ const Task = ({ order }) => {
   const formattedCheckOut = formatDateTime(order.Dtcheckout, order.Hrcheckout);
 
   // Calcula o tempo de produção
-  const productionTime = calculateProductionTime();
+  const productionTime = calculateProductionTime(formattedCheckIn);
 
   // Verifica se a ordem está iniciada e aplica uma classe correspondente ao cartão
   const isIniciado = order.Iniciado === true;

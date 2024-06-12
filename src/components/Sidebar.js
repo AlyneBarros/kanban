@@ -106,7 +106,7 @@ function Sidebar({ isSideBarOpen, setIsSideBarOpen, areas, onAreaClick }) {
             onClick={toggleSidebar}
             aria-label="Toggle Sidebar"
           >
-           <BiLeftIndent size={35} className={darkSide ? "text-white" : "text-gray-500"} />
+            <BiLeftIndent size={35} className={darkSide ? "text-white" : "text-gray-500"} />
           </div>
 
           <div className="flex-1">

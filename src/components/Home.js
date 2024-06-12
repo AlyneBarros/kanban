@@ -1,4 +1,3 @@
-// Importação de dependências
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Column from "./Column";
@@ -7,26 +6,28 @@ import Header from "./Header";
 import "./RecursoContainer.css";
 
 // Definição da URL do serviço e credenciais
-const serviceUrl = "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
+const serviceUrl =
+  "https://apps.uniaoquimica.com.br:44301/sap/opu/odata/sap/ZKANBAN_SRV/";
 const username = "usr_webapp";
 const password = "Uqfn@2020@#";
 
 // Definição das etapas fixas do processo
-const fixedProcessOrder = [
-  "PESAGEM",
-  "ACONDICIONAR",
-  "GRANULACAO",
-  "COMPRESSÃO",
-  "DRAGEADORA",
-  "EQUALIZACAO",
-  "ESCOLHA",
-  "EMBALAGEM",
-  "REVISÃO DOCUMENTAÇÃO",
-];
+
+// const fixedProcessOrder = [
+//   "PESAGEM",
+//   "ACONDICIONAR",
+//   "GRANULACAO",
+//   "COMPRESSÃO",
+//   "PREPARAÇÃO",
+//   "DRAGEADORA",
+//   "EQUALIZACAO",
+//   "ESCOLHA",
+//   "EMBALAGEM",
+//   "REVISÃO DOCUMENTAÇÃO",
+// ];
 
 function Home() {
   // Definição dos estados do componente
-  const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
   const [orders, setOrders] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -44,18 +45,23 @@ function Home() {
     containerHeight: "87vh",
   });
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
-  const [scrollSpeed, setScrollSpeed] = useState(5);
+  const [scrollSpeed] = useState(5);
   const [lastUpdated, setLastUpdated] = useState("");
   const [loading, setLoading] = useState(false);
   const scrollContainerRef = useRef(null);
   const [showAllColumns, setShowAllColumns] = useState(true);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+  const [operacao, setOperacao] = useState([]);
 
   // Hook para buscar dados ao montar o componente
   useEffect(() => {
-    fetchData();
+    fetchOrdemColunas();
     const intervalId = setInterval(fetchData, 300000); // 300000 ms = 5 minutos
-    return () => clearInterval(intervalId); // Limpa o intervalo ao desmontar o componente
+    const intervalIdOrdemColunas = setInterval(fetchOrdemColunas, 300000); // Atualização automática de fetchOrdemColunas a cada 5 minutos
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(intervalIdOrdemColunas);
+    }; // Limpa os intervalos ao desmontar o componente
   }, []);
 
   // Hook para lidar com hash na URL para navegação inicial
@@ -101,16 +107,22 @@ function Home() {
       setOrders(ordersOfSg00);
 
       if (ordersOfSg00.length > 0) {
-        const uniqueOrders = new Set(ordersOfSg00.map(order => order.OrderNumber));
+        const uniqueOrders = new Set(
+          ordersOfSg00.map((order) => order.OrderNumber)
+        );
         setUniqueOrderCount(uniqueOrders.size);
 
-        const startedOrders = ordersOfSg00.filter(order => order.Iniciado === true);
-        const waitingOrders = ordersOfSg00.filter(order => !order.Iniciado);
+        const startedOrders = ordersOfSg00.filter(
+          (order) => order.Iniciado === true
+        );
+        const waitingOrders = ordersOfSg00.filter((order) => !order.Iniciado);
 
         setStartedOrderCount(startedOrders.length);
         setWaitingOrderCount(waitingOrders.length);
 
-        setGenomTitle(ordersOfSg00[0].Centro === "SG00" ? "Genom" : ordersOfSg00[0].Centro);
+        setGenomTitle(
+          ordersOfSg00[0].Centro === "SG00" ? "Genom" : ordersOfSg00[0].Centro
+        );
         setAreaTitle(ordersOfSg00[0].Area);
       }
 
@@ -124,14 +136,15 @@ function Home() {
         }
       );
 
-      const areasData = responseAreas.data.d.results.map(item => item.Area);
-      const uniqueAreas = [...new Set(areasData)].filter(area => area);
+      const areasData = responseAreas.data.d.results.map((item) => item.Area);
+      const uniqueAreas = [...new Set(areasData)].filter((area) => area);
       setAreas(uniqueAreas);
-      setLastUpdated(new Date().toLocaleString()); 
+
+      setLastUpdated(new Date().toLocaleString());
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
-      setLoading(false); // Finaliza o estado de carregamento
+      setLoading(false);
     }
   };
 
@@ -169,23 +182,59 @@ function Home() {
       setOrders(ordersOfArea);
 
       if (ordersOfArea.length > 0) {
-        const uniqueOrders = new Set(ordersOfArea.map(order => order.OrderNumber));
+        const uniqueOrders = new Set(
+          ordersOfArea.map((order) => order.OrderNumber)
+        );
         setUniqueOrderCount(uniqueOrders.size);
 
-        const startedOrders = ordersOfArea.filter(order => order.Iniciado === true);
-        const waitingOrders = ordersOfArea.filter(order => !order.Iniciado);
+        const startedOrders = ordersOfArea.filter(
+          (order) => order.Iniciado === true
+        );
+        const waitingOrders = ordersOfArea.filter((order) => !order.Iniciado);
 
         setStartedOrderCount(startedOrders.length);
         setWaitingOrderCount(waitingOrders.length);
 
-        setGenomTitle(ordersOfArea[0].Centro === "SG00" ? "Genom" : ordersOfArea[0].Centro);
+        setGenomTitle(
+          ordersOfArea[0].Centro === "SG00" ? "Genom" : ordersOfArea[0].Centro
+        );
         setAreaTitle(ordersOfArea[0].Area);
       }
-      setLastUpdated(new Date().toLocaleString()); 
+      setLastUpdated(new Date().toLocaleString());
     } catch (error) {
       console.error("Erro ao buscar dados da API OData:", error);
     } finally {
       setLoading(false); // Finaliza o estado de carregamento
+    }
+  };
+
+  // Função para buscar as ordens das colunas
+  const fetchOrdemColunas = async () => {
+    try {
+      setLoading(true); // Inicia o estado de carregamento
+      const auth = btoa(`${username}:${password}`);
+      const responseOrdemColunas = await axios.get(
+        `${serviceUrl}/OperacaoSet/?$filter=Centro eq 'SG00'&$orderby=Sequencia&$format=json`,
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            Accept: "application/json",
+          }
+        }
+      );
+
+      const operationArray = responseOrdemColunas.data.d.results;
+      const operationNames = operationArray.map(operation => operation.Processo);
+
+      // Adiciona o processo manualmente
+      operationNames.push("REVISÃO DOCUMENTAÇÃO");
+
+      setOperacao(operationNames);
+      fetchData();
+    } catch (error) {
+      console.error("Erro ao buscar dados da API OData:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -212,15 +261,15 @@ function Home() {
         defaultSizes={defaultSizes}
         genomTitle={genomTitle}
         areaTitle={areaTitle}
-        onRefresh={fetchData} // Passa a função de atualização para Header
-        lastUpdated={lastUpdated} // Passa o tempo da última atualização para Header
-        loading={loading} // Passa o estado de carregamento para Header
+        onRefresh={fetchData}
+        lastUpdated={lastUpdated}
+        loading={loading}
         scrollContainerRef={scrollContainerRef} // Passa a referência do contêiner de rolagem
-        showAllColumns={showAllColumns} // Passa o estado para o Header
+        showAllColumns={showAllColumns}
         setShowAllColumns={setShowAllColumns}
         onToggleAutoScroll={handleToggleAutoScroll} // Passa a função de alternar rolagem automática para Header
         autoRefreshEnabled={autoRefreshEnabled}
-        onToggleAutoRefresh={handleToggleAutoRefresh} // Passa a função de alternar atualização automática para Header
+        onToggleAutoRefresh={handleToggleAutoRefresh}
       />
 
       <Sidebar
@@ -231,7 +280,9 @@ function Home() {
       />
 
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${isSideBarOpen ? "ml-[261px]" : "ml-0"}`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${
+          isSideBarOpen ? "ml-[261px]" : "ml-0"
+        }`}
       >
         <header className="flex items-center justify-between p-4 bg-white dark:bg-[#2b2c37] shadow-md">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -241,8 +292,10 @@ function Home() {
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
           <div className="flex space-x-4 min-w-max">
-            {fixedProcessOrder.map((processo, index) => {
-              const ordersOfProcess = orders.filter(order => order.Processo === processo);
+            {operacao.map((processo, index) => {
+              const ordersOfProcess = orders.filter(
+                (order) => order.Processo === processo
+              );
               if (!showAllColumns && ordersOfProcess.length === 0) {
                 return null;
               }
