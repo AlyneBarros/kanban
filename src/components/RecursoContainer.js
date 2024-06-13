@@ -3,7 +3,7 @@ import Task from "./Task";
 import { SlArrowDown, SlArrowUp } from 'react-icons/sl';
 import "./RecursoContainer.css";
 
-const RecursoContainer = ({ recurso, orders, cardWidth, autoScrollEnabled, toggleAutoScroll, totalRecursos }) => {
+const RecursoContainer = ({ recurso, orders, cardWidth, autoScrollEnabled, toggleAutoScroll, totalRecursos, descProcesso }) => {
   const containerRef = useRef(null);
   const [isOpen, setIsOpen] = useState(true);
 
@@ -42,7 +42,7 @@ const RecursoContainer = ({ recurso, orders, cardWidth, autoScrollEnabled, toggl
   });
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4 overflow-hidden" ref={containerRef}>
+    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4">
       <div className="flex justify-between items-center" onClick={toggleOpen}>
         <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-4">
           {recurso} ({orders.length})
@@ -53,12 +53,18 @@ const RecursoContainer = ({ recurso, orders, cardWidth, autoScrollEnabled, toggl
       </div>
       <div
         className={`recurso-container-list ${isOpen ? 'open' : 'closed'}`}
-        style={{ maxHeight: isOpen ? (totalRecursos === 1 ? 'none' : '300px') : '100px', overflowY: 'auto' }} // Ajusta a altura condicionalmente com base na variável isOpen
+        style={{ maxHeight: isOpen ? (totalRecursos === 1 ? 'none' : '300px') : '100px' }} // Ajusta a altura condicionalmente com base na variável isOpen
+        ref={containerRef}
       >
         {isOpen && (
-          <div className="gap-y-9">
-            {sortedOrders.map((order, index) => (
-              <Task key={index} order={order} cardWidth={cardWidth} />
+          <div className="gap-y-9 overflow-y-auto">
+            {sortedOrders.map((order) => (
+              <Task key={order.OrderNumber} 
+                order={order} 
+                cardWidth={cardWidth} 
+                ordersInOtherColumns={orders.filter((o) => o.OrderNumber === order.OrderNumber)}
+                processo={descProcesso}
+              />
             ))}
           </div>
         )}

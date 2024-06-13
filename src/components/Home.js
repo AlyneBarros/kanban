@@ -38,11 +38,11 @@ function Home() {
   const [waitingOrderCount, setWaitingOrderCount] = useState(0);
   const [cardWidth, setCardWidth] = useState("350px");
   const [columnWidth, setColumnWidth] = useState("350px");
-  const [containerHeight, setContainerHeight] = useState("87vh");
+  const [containerHeight, setContainerHeight] = useState("89vh");
   const [defaultSizes, setDefaultSizes] = useState({
     cardWidth: "350px",
     columnWidth: "350px",
-    containerHeight: "87vh",
+    containerHeight: "89vh",
   });
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
   const [scrollSpeed] = useState(5);
@@ -104,7 +104,25 @@ function Home() {
       );
 
       const ordersOfSg00 = responseOrders.data.d.results;
-      setOrders(ordersOfSg00);
+
+      // Find duplicates with different `Iniciado` status
+      const orderMap = {};
+      ordersOfSg00.forEach(order => {
+        if (!orderMap[order.OrderNumber]) {
+          orderMap[order.OrderNumber] = [];
+        }
+        orderMap[order.OrderNumber].push(order);
+      });
+
+      const updatedOrders = ordersOfSg00.map(order => {
+        const duplicates = orderMap[order.OrderNumber];
+        const isDuplicatedNotStarted = duplicates.some(
+          o => o.Iniciado !== order.Iniciado && !order.Iniciado
+        );
+        return { ...order, isDuplicatedNotStarted };
+      });
+
+      setOrders(updatedOrders);
 
       if (ordersOfSg00.length > 0) {
         const uniqueOrders = new Set(
@@ -148,6 +166,17 @@ function Home() {
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  ;
+
+  // Fetching operacao data and setting state
+  useEffect(() => {
+    fetchOrdemColunas();
+  }, []);
+  
   // Função para definir tamanhos padrão dos componentes
   const handleSetDefaultSizes = () => {
     setCardWidth(defaultSizes.cardWidth);
@@ -270,6 +299,7 @@ function Home() {
         onToggleAutoScroll={handleToggleAutoScroll} // Passa a função de alternar rolagem automática para Header
         autoRefreshEnabled={autoRefreshEnabled}
         onToggleAutoRefresh={handleToggleAutoRefresh}
+        fetchOrdemColunas={fetchOrdemColunas}
       />
 
       <Sidebar
@@ -292,25 +322,27 @@ function Home() {
 
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
           <div className="flex space-x-4 min-w-max">
-            {operacao.map((processo, index) => {
-              const ordersOfProcess = orders.filter(
-                (order) => order.Processo === processo
-              );
-              if (!showAllColumns && ordersOfProcess.length === 0) {
-                return null;
-              }
-              return (
-                <Column
-                  key={index}
-                  descProcesso={processo}
-                  orders={ordersOfProcess}
-                  cardWidth={cardWidth}
-                  columnWidth={columnWidth}
-                  containerHeight={containerHeight}
-                  showAllColumns={showAllColumns}
-                />
-              );
-            })}
+          {operacao.map((processo, index) => {
+  const ordersOfProcess = orders.filter(
+    (order) => order.Processo === processo
+  );
+  if (!showAllColumns && ordersOfProcess.length === 0) {
+    return null;
+  }
+  return (
+    <Column
+      key={index}
+      descProcesso={processo}
+      orders={ordersOfProcess}
+      cardWidth={cardWidth}
+      columnWidth={columnWidth}
+      containerHeight={containerHeight}
+      showAllColumns={showAllColumns}
+      operacao={operacao} // Pass operacao as a prop
+    />
+  );
+})}
+             
           </div>
         </div>
       </div>

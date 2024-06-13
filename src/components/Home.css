@@ -23,3 +23,26 @@
  }
 
 
+
+ /* <div className="flex items-center space-x-3">
+                        <Switch
+                          checked={darkSide}
+                          onChange={toggleDarkMode}
+                          className={`${
+                            darkSide ? "bg-gray-500" : "bg-gray-800"
+                          } relative inline-flex h-6 w-11 items-center rounded-full`}
+                        >
+                          <span className="sr-only">Toggle Dark Mode</span>
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full transition ${
+                              darkSide ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          >
+                            {darkSide ? (
+                              <MdOutlineLightMode className="text-white" />
+                            ) : (
+                              <MdDarkMode className="text-yellow-500" />
+                            )}
+                          </span>
+                        </Switch>
+                      </div> */

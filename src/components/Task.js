@@ -1,7 +1,11 @@
-import React from 'react';
+import {useState} from 'react';
+import { FaExclamationTriangle } from 'react-icons/fa'; // Biblioteca de ícones
+import { Tooltip } from 'react-tooltip'; // Biblioteca de tooltips
 
 const Task = ({ order }) => {
-  // Formata a data e hora UTC para o formato desejado
+  const [showOrangeTasks, setShowOrangeTasks] = useState(false);
+
+  // Função para formatar a data no formato desejado
   const formatDateUTC = (sDate) => {
     if (!sDate) return "-";
 
@@ -21,7 +25,7 @@ const Task = ({ order }) => {
     return formatter.format(date);
   };
 
-  // Formata a data e hora de acordo com os dados fornecidos
+  // Função para formatar a data e hora
   const formatDateTime = (dateString, timeString) => {
     if (!dateString || !timeString) return null;
 
@@ -42,7 +46,7 @@ const Task = ({ order }) => {
     return isNaN(date.getTime()) ? null : date;
   };
 
-  // Calcula o tempo de produção
+  // Função para calcular o tempo de produção
   const calculateProductionTime = (formattedCheckIn) => {
     if (!(formattedCheckIn instanceof Date)) return null;
 
@@ -52,36 +56,49 @@ const Task = ({ order }) => {
     return `hrs: ${Math.round(diffInHours)}`;
   };
 
-  // Formata os dados de data e hora para exibição
+  // Função para determinar a classe de estilo com base na ordem da tarefa
+  const sortedClass = () => {
+    // Tarefa iniciada
+    if (order.Iniciado) {
+      return 'border-l-8 border-green-500';
+    }
+    // Tarefa não iniciada
+    if (!order.Iniciado && !order.isDuplicatedNotStarted) {
+      return '';
+    }
+    // Tarefa não iniciada duplicada
+    if (!order.Iniciado && order.isDuplicatedNotStarted) {
+      return 'border-l-8 border-orange-500';
+    }
+    return '';
+  };
+
   const formattedCheckIn = formatDateTime(order.Dtcheckin, order.Hrcheckin);
   const formattedCheckOut = formatDateTime(order.Dtcheckout, order.Hrcheckout);
-
-  // Calcula o tempo de produção
   const productionTime = calculateProductionTime(formattedCheckIn);
 
-  // Verifica se a ordem está iniciada e aplica uma classe correspondente ao cartão
-  const isIniciado = order.Iniciado === true;
-  const cardClass = isIniciado ? 'border-l-8 border-green-500 ' : '';
-
   return (
-    <div className={`kanban-task rounded-lg shadow-md p-4 mb-4 mr-4 bg-white ${cardClass}`}>
-      {/* Detalhes da ordem */}
-      <p className="text-sm font-semibold mb-2">
+    <div className={`kanban-task rounded-lg shadow-md p-4 mb-4 mr-4 bg-white ${sortedClass()}`}>
+      <p className="text-sm font-semibold mb-2 flex items-center">
         OP: {order.OrderNumber} | {order.Lote}
+        {order.isDuplicatedNotStarted && (
+          <span className="ml-2 text-orange-500" data-tooltip-id="tooltip-duplicate" data-tooltip-content="Essa ordem se encontra iniciada em outro processo">
+            <FaExclamationTriangle />
+          </span>
+        )}
       </p>
       <p className="text-sm text-black-600">
         {order.Material} | {order.Descmaterial} | {new Intl.NumberFormat('pt-BR').format(order.Quantidade)} {order.Unidade}
       </p>
-      {/* Exibe o tempo de produção e o horário de check-in */}
       <p className="text-sm text-black-600">
         {productionTime !== null ? `${productionTime} | CheckIn: ${formattedCheckIn.toLocaleString({ timeZone: 'America/Sao_Paulo' })}` : ''}
       </p>
-      {/* Exibe o horário de check-out se disponível */}
       {formattedCheckOut && (
         <p className="text-sm text-black-600">
           CheckOut: {formattedCheckOut.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
         </p>
       )}
+      <Tooltip id="tooltip-duplicate" />
     </div>
   );
 };

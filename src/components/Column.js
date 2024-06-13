@@ -3,7 +3,7 @@ import ColumnHeader from './ColumnHeader';
 import RecursoContainer from './RecursoContainer';
 import "./Column.css";
 
-const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight }) => {
+const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight, operacao }) => {
   const isEmpty = orders.length === 0;
   const columnContainerRef = useRef(null);
   const groupedOrdersByRecurso = orders.reduce((acc, order) => {
@@ -15,7 +15,6 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
   }, {});
 
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
- 
 
   const toggleAutoScroll = () => {
     setAutoScrollEnabled(!autoScrollEnabled);
@@ -48,7 +47,7 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
   return (
     <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md mb-4" style={{ width: columnWidth, maxHeight: containerHeight }} ref={columnContainerRef}>
       <ColumnHeader descProcesso={descProcesso} totalOrders={orders.length} />
-      <div className="column-list max-h-[calc(100%-3.5rem)]">
+      <div className="column-list max-h-[calc(100%-5.5rem)]">
         {isEmpty ? (
           <p className="text-gray-900 dark:text-gray-100">Nenhuma ordem disponível</p>
         ) : (
@@ -61,8 +60,9 @@ const Column = ({ descProcesso, orders, cardWidth, columnWidth, containerHeight 
                 cardWidth={cardWidth}
                 autoScrollEnabled={autoScrollEnabled}
                 toggleAutoScroll={toggleAutoScroll}
-                scrollContainerRef={columnContainerRef} // Passando a referência do contêiner de rolagem
-                totalRecursos={totalRecursos} // Passa a contagem total de recursos
+                scrollContainerRef={columnContainerRef}
+                totalRecursos={totalRecursos}
+                operacao={operacao} // Pass `operacao` to RecursoContainer or use it as needed
               />
             ))}
           </div>
